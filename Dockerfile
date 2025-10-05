@@ -6,9 +6,9 @@
 # Stage 1: Build the application
 FROM eclipse-temurin:21-jdk-jammy AS builder
 
-# Install Node.js for Angular build
+# Install Node.js 22.x for Angular build (required by Angular 20.x)
 RUN apt-get update && apt-get install -y curl && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs
 
 WORKDIR /app
