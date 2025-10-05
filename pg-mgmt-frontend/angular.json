@@ -14,7 +14,6 @@
           "builder": "@angular/build:application",
           "options": {
             "baseHref": "/",
-            "outputPath": "../pg-mgmt-backend/src/main/resources/static",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["src/polyfills.ts"],

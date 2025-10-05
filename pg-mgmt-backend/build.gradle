@@ -19,7 +19,7 @@ repositories {
 }
 
 dependencies {
-	implementation(project(':pg-mgmt-frontend'))
+	// implementation(project(':pg-mgmt-frontend'))
 
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -40,20 +40,20 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-task moveFrontendBuild(type: Copy) {
-    def staticDir = "$projectDir/src/main/resources/static"
-    def browserDir = "$staticDir/browser"
-    from(browserDir)
-    into(staticDir)
-    doFirst {
-        if (!file(browserDir).exists()) {
-            throw new GradleException("Browser build output not found: $browserDir")
-        }
-    }
-    doLast {
-        delete file(browserDir)
-    }
-}
+// task moveFrontendBuild(type: Copy) {
+//     def staticDir = "$projectDir/src/main/resources/static"
+//     def browserDir = "$staticDir/browser"
+//     from(browserDir)
+//     into(staticDir)
+//     doFirst {
+//         if (!file(browserDir).exists()) {
+//             throw new GradleException("Browser build output not found: $browserDir")
+//         }
+//     }
+//     doLast {
+//         delete file(browserDir)
+//     }
+// }
 
-build.dependsOn moveFrontendBuild
-processResources.dependsOn moveFrontendBuild
+// build.dependsOn moveFrontendBuild
+// processResources.dependsOn moveFrontendBuild
