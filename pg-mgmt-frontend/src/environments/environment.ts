@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: 'http://localhost:8080',
+  // apiBaseUrl: 'http://localhost:8080',
+  apiBaseUrl: 'https://saibabapg-backend-test.onrender.com',
   googleClientId:
     '833966053041-2hb1gt2ieu80s42eajakbn6go2pilmuu.apps.googleusercontent.com',
 };
