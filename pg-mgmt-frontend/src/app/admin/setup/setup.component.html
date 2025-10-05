@@ -1,0 +1,319 @@
+<mat-card class="setup-card">
+  <mat-card-header>
+    <mat-card-title>Update Room Capacity &amp; Comments</mat-card-title>
+    <mat-card-subtitle
+      >Select a room to review and update its details.</mat-card-subtitle
+    >
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (!isLoadingRooms) {
+      @if (rooms.length > 0) {
+        <form class="setup-form" (ngSubmit)="onSave()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Room</mat-label>
+            <mat-select
+              [value]="selectedRoomId"
+              (selectionChange)="onRoomSelected($event.value)"
+              placeholder="Select a room"
+            >
+              <mat-option [value]="null">Select a room</mat-option>
+              @for (room of rooms; track trackByRoomId($index, room)) {
+                <mat-option [value]="room.id">
+                  {{ room.roomNo }}
+                  <span class="option-meta"
+                    >&nbsp;• Capacity {{ room.capacity }}</span
+                  >
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (selectedRoom) {
+            <div class="room-meta">
+              <div class="meta-item">
+                <span class="meta-label">Floor</span>
+                <span class="meta-value">{{
+                  selectedRoom.floorNo || "—"
+                }}</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Allocated</span>
+                <span class="meta-value">{{
+                  selectedRoom.allocatedCount
+                }}</span>
+              </div>
+            </div>
+          }
+
+          <mat-form-field appearance="outline" class="half-width">
+            <mat-label>Capacity</mat-label>
+            <input
+              matInput
+              type="number"
+              [ngModel]="capacityValue ?? ''"
+              (ngModelChange)="onCapacityChange($event)"
+              name="capacity"
+              min="1"
+              [disabled]="!selectedRoom"
+              required
+            />
+            @if (selectedRoom) {
+              <mat-hint>
+                Currently allocated: {{ selectedRoom.allocatedCount }}
+              </mat-hint>
+            }
+          </mat-form-field>
+
+          @if (capacityError) {
+            <div class="field-error">
+              <mat-icon color="warn">error_outline</mat-icon>
+              <span>{{ capacityError }}</span>
+            </div>
+          }
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Comments</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              [ngModel]="commentsValue"
+              (ngModelChange)="onCommentsChange($event)"
+              name="comments"
+              [disabled]="!selectedRoom"
+            ></textarea>
+          </mat-form-field>
+
+          <div class="actions">
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="onRoomSelected(selectedRoomId)"
+              [disabled]="!selectedRoom"
+            >
+              Reset
+            </button>
+            <button
+              mat-flat-button
+              color="primary"
+              type="submit"
+              [disabled]="isSaveDisabled"
+            >
+              @if (!isSaving) {
+                <mat-icon>save</mat-icon>
+              } @else {
+                <mat-progress-spinner
+                  diameter="20"
+                  mode="indeterminate"
+                  strokeWidth="3"
+                ></mat-progress-spinner>
+              }
+              <span>Save</span>
+            </button>
+          </div>
+        </form>
+      } @else {
+        <div class="empty-state">
+          <mat-icon color="warn">meeting_room</mat-icon>
+          <p>No rooms configured yet.</p>
+          <p>Use the "Add Rooms" section below to set up your first room.</p>
+        </div>
+      }
+    } @else {
+      <div class="loading-state">
+        <mat-progress-spinner
+          diameter="48"
+          mode="indeterminate"
+        ></mat-progress-spinner>
+        <span>Loading rooms…</span>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="setup-card add-room-card">
+  <mat-card-header>
+    <mat-card-title>Add Rooms</mat-card-title>
+    <mat-card-subtitle>
+      Provide floor, capacity, and one or more room numbers separated by commas.
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form class="setup-form add-form" (ngSubmit)="onAddRooms()">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Floor Number</mat-label>
+        <input
+          matInput
+          type="number"
+          [ngModel]="newFloorNo ?? ''"
+          (ngModelChange)="onNewFloorChange($event)"
+          name="newFloorNo"
+          min="0"
+          required
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Room Numbers</mat-label>
+        <input
+          matInput
+          [ngModel]="newRoomNumbers"
+          (ngModelChange)="onNewRoomNumbersChange($event)"
+          name="newRoomNumbers"
+          placeholder="E.g. 101, 102, 103"
+          required
+        />
+        <mat-hint
+          >Use commas to separate multiple rooms. Allowed characters: letters,
+          numbers, hyphen.</mat-hint
+        >
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Capacity</mat-label>
+        <input
+          matInput
+          type="number"
+          [ngModel]="newCapacity ?? ''"
+          (ngModelChange)="onNewCapacityChange($event)"
+          name="newCapacity"
+          min="1"
+          required
+        />
+      </mat-form-field>
+
+      @if (addRoomsError) {
+        <div class="add-errors">
+          <mat-icon color="warn">error_outline</mat-icon>
+          <span>{{ addRoomsError }}</span>
+        </div>
+      }
+
+      <div class="actions">
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="resetAddRoomsForm()"
+          [disabled]="isAddingRooms"
+        >
+          Clear
+        </button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="!canSubmitNewRooms"
+        >
+          @if (!isAddingRooms) {
+            <mat-icon>add</mat-icon>
+          } @else {
+            <mat-progress-spinner
+              diameter="20"
+              mode="indeterminate"
+              strokeWidth="3"
+            ></mat-progress-spinner>
+          }
+          <span>Add</span>
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="setup-card delete-room-card">
+  <mat-card-header>
+    <mat-card-title>Delete Room</mat-card-title>
+    <mat-card-subtitle>
+      Remove a room after ensuring no tenants are currently allocated to it.
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <form class="setup-form delete-form" (ngSubmit)="onDeleteRoom()">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Floor Number</mat-label>
+        <mat-select
+          [value]="deleteFloor"
+          (selectionChange)="onDeleteFloorChange($event.value)"
+          placeholder="Select floor"
+        >
+          <mat-option [value]="null">Select floor</mat-option>
+          @for (floor of floorOptions; track floor) {
+            <mat-option [value]="floor">
+              {{ floor }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Room Number</mat-label>
+        <mat-select
+          [value]="deleteRoomId"
+          (selectionChange)="onDeleteRoomSelected($event.value)"
+          placeholder="Select room"
+          [disabled]="!deleteFloor || deleteRoomOptions.length === 0"
+        >
+          <mat-option [value]="null">Select room</mat-option>
+          @for (room of deleteRoomOptions; track trackByRoomId($index, room)) {
+            <mat-option [value]="room.id">
+              {{ room.roomNo }}
+              <span class="option-meta"
+                >&nbsp;• Allocated {{ room.allocatedCount }}</span
+              >
+            </mat-option>
+          }
+        </mat-select>
+        @if (deleteFloor && deleteRoomOptions.length === 0) {
+          <mat-hint> No rooms available on this floor. </mat-hint>
+        }
+      </mat-form-field>
+
+      @if (deleteFloor) {
+        <div class="delete-warning">
+          <mat-icon color="warn">warning</mat-icon>
+          <span>
+            Deleting a room is permanent. Ensure all tenants are re-assigned
+            first.
+          </span>
+        </div>
+      }
+
+      @if (deleteRoomsError) {
+        <div class="add-errors">
+          <mat-icon color="warn">error_outline</mat-icon>
+          <span>{{ deleteRoomsError }}</span>
+        </div>
+      }
+
+      <div class="actions">
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="resetDeleteForm()"
+          [disabled]="isDeletingRoom"
+        >
+          Clear
+        </button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="isDeleteDisabled"
+        >
+          @if (!isDeletingRoom) {
+            <mat-icon>delete</mat-icon>
+          } @else {
+            <mat-progress-spinner
+              diameter="20"
+              mode="indeterminate"
+              strokeWidth="3"
+            ></mat-progress-spinner>
+          }
+          <span>Delete</span>
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

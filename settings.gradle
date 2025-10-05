@@ -1,0 +1,3 @@
+rootProject.name = 'pg-mgmt'
+include(':pg-mgmt-frontend')
+include(':pg-mgmt-backend')

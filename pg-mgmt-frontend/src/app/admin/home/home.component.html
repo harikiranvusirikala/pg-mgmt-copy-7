@@ -1,0 +1,161 @@
+<div class="dashboard-wrapper">
+  @if (loading) {
+    <div class="loading-state">
+      <mat-progress-spinner
+        class="loading-spinner"
+        diameter="48"
+        mode="indeterminate"
+      ></mat-progress-spinner>
+      <span>Loading dashboard insights…</span>
+    </div>
+  }
+
+  @if (!loading && error) {
+    <div class="error-banner">
+      {{ error }}
+    </div>
+  }
+
+  @if (!loading && !error) {
+    <section class="stats-section">
+      <div class="section-header">
+        <div>
+          <h2>Meal Preference Status</h2>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <mat-card class="stat-card">
+          <div class="stat-label">Active Tenants</div>
+          <div class="stat-value">{{ counts.totalActive }}</div>
+        </mat-card>
+        <mat-card class="stat-card">
+          <div class="stat-label">Veg Preference</div>
+          <div class="stat-value">{{ counts.vegCount }}</div>
+        </mat-card>
+        <mat-card class="stat-card">
+          <div class="stat-label">Non-Veg Preference</div>
+          <div class="stat-value">{{ counts.nonVegCount }}</div>
+        </mat-card>
+      </div>
+    </section>
+
+    <section class="stats-section">
+      <div class="section-header">
+        <div>
+          <h2>Allocation Status</h2>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <mat-card class="stat-card">
+          <div class="stat-label">Total Capacity</div>
+          <div class="stat-value">{{ counts.totalCapacity }}</div>
+        </mat-card>
+        <mat-card class="stat-card">
+          <div class="stat-label">Allocated Beds</div>
+          <div class="stat-value">{{ counts.allocatedCapacity }}</div>
+        </mat-card>
+        <mat-card class="stat-card">
+          <div class="stat-label">Vacant Beds</div>
+          <div class="stat-value">{{ counts.vacantCapacity }}</div>
+        </mat-card>
+      </div>
+    </section>
+
+    <section class="payment-due-section">
+      <mat-card>
+        <div class="section-header">
+          <div>
+            <h2>Payment Due Tenants</h2>
+            <p class="section-subtitle">
+              Continuous stay marked as <strong>true</strong>
+            </p>
+          </div>
+          @if (paymentDueTenants.length) {
+            <span class="count-pill"> {{ paymentDueTenants.length }} due </span>
+          }
+        </div>
+
+        @if (paymentDueTenants.length) {
+          <div class="table-scroll">
+            <table class="payment-due-table">
+              <thead>
+                <tr>
+                  <th>Room</th>
+                  <th>Name</th>
+                  <th>Renewal Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (
+                  tenant of paymentDueTenants;
+                  track trackTenant($index, tenant)
+                ) {
+                  <tr>
+                    <td>{{ tenant.roomNo || "—" }}</td>
+                    <td>{{ tenant.name }}</td>
+                    <td>
+                      {{
+                        tenant.renewalDate
+                          | date: "mediumDate" : undefined : "en-US"
+                      }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="empty-state compact">
+            Great news! No tenants currently have payments due.
+          </div>
+        }
+      </mat-card>
+    </section>
+
+    <section class="top-tenants-section">
+      <mat-card>
+        <div class="section-header">
+          <div>
+            <h2>Upcoming Room Vacancies</h2>
+            <p class="section-subtitle">
+              Continuous stay marked as <strong>false</strong>
+            </p>
+          </div>
+        </div>
+
+        @if (topTenants.length) {
+          <div class="table-scroll">
+            <table class="tenants-table">
+              <thead>
+                <tr>
+                  <th>Room</th>
+                  <th>Name</th>
+                  <th>Vacate Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (tenant of topTenants; track trackTenant($index, tenant)) {
+                  <tr>
+                    <td>{{ tenant.roomNo || "—" }}</td>
+                    <td>{{ tenant.name }}</td>
+                    <td>
+                      {{
+                        tenant.renewalDate
+                          | date: "mediumDate" : undefined : "en-US"
+                      }}
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        } @else {
+          <div class="empty-state">
+            No tenants are currently approaching renewal with continuous stay
+            set to false.
+          </div>
+        }
+      </mat-card>
+    </section>
+  }
+</div>

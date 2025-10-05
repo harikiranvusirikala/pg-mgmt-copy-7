@@ -1,0 +1,172 @@
+@if (user; as tenant) {
+  <section class="profile-wrapper">
+    <mat-card class="profile-card">
+      <div class="profile-header">
+        <div class="avatar" [class.placeholder]="!tenant.pictureUrl">
+          @if (tenant.pictureUrl) {
+            <img
+              [src]="tenant.pictureUrl"
+              alt="{{ tenant.name }}"
+              loading="lazy"
+            />
+          } @else {
+            {{ tenant.name ? (tenant.name | slice: 0 : 1 | uppercase) : "U" }}
+          }
+        </div>
+
+        <div class="header-info">
+          <h2>{{ tenant.name || "Guest user" }}</h2>
+          <p class="email">
+            <mat-icon>mail</mat-icon>
+            {{ tenant.email }}
+          </p>
+
+          <div
+            class="status-chip"
+            [class.active]="tenant.isActive"
+            [class.inactive]="!tenant.isActive"
+          >
+            <span class="status-dot"></span>
+            {{ accountStatusLabel }}
+          </div>
+        </div>
+      </div>
+
+      <div class="status-actions">
+        <mat-slide-toggle
+          color="primary"
+          [checked]="tenant.isActive"
+          (change)="onActiveToggle($event)"
+          [disabled]="
+            isStatusUpdating ||
+            isProfileLoading ||
+            isMealUpdating ||
+            isPhoneSaving ||
+            isContinuousStayUpdating
+          "
+        >
+          Meal status
+        </mat-slide-toggle>
+        <mat-slide-toggle
+          color="primary"
+          [checked]="tenant.continuousStay"
+          (change)="onContinuousStayToggle($event)"
+          [disabled]="
+            isContinuousStayUpdating ||
+            isProfileLoading ||
+            isStatusUpdating ||
+            isMealUpdating ||
+            isPhoneSaving
+          "
+        >
+          Continuous stay
+        </mat-slide-toggle>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="details-grid">
+        <div>
+          <span class="label">📱 Phone</span>
+          <mat-form-field appearance="outline" class="value-field phone-field">
+            <input
+              matInput
+              placeholder="Add phone number"
+              [formControl]="phoneControl"
+              [disabled]="isPhoneSaving || isProfileLoading"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              color="primary"
+              type="button"
+              (click)="savePhoneNumber()"
+              [disabled]="!canSavePhone"
+              aria-label="Save phone number"
+            >
+              <mat-icon>check</mat-icon>
+            </button>
+            @if (phoneControl.invalid) {
+              <mat-error>Phone must be exactly 10 digits.</mat-error>
+            }
+          </mat-form-field>
+        </div>
+        <div>
+          <span class="label">🍴 Meal preference</span>
+          <mat-form-field appearance="outline" class="value-field">
+            <mat-select
+              [formControl]="mealPreferenceControl"
+              (selectionChange)="onMealPreferenceChange($event)"
+              [disabled]="
+                isMealUpdating || isProfileLoading || !user || !user.id
+              "
+              placeholder="Select preference"
+            >
+              <mat-option [value]="null">Not specified</mat-option>
+              @for (option of mealOptions; track option) {
+                <mat-option [value]="option">
+                  {{ option }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div>
+          <span class="label">🚪 Room</span>
+          <span class="value">{{ tenant.roomNo || "Not assigned" }}</span>
+        </div>
+        <div>
+          <span class="label">📅 Renewal date</span>
+          <span class="value">
+            {{
+              tenant.renewalDate
+                ? (tenant.renewalDate | date: "mediumDate")
+                : "Not set"
+            }}
+          </span>
+        </div>
+        <div>
+          <span class="label">🗓️ Payment due</span>
+          <span class="value">{{ tenant.due ? "Yes" : "No" }}</span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <div class="actions">
+        <button
+          mat-stroked-button
+          color="primary"
+          (click)="refreshProfile()"
+          [disabled]="
+            isProfileLoading ||
+            isStatusUpdating ||
+            isMealUpdating ||
+            isPhoneSaving ||
+            isContinuousStayUpdating
+          "
+        >
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+      </div>
+
+      @if (
+        isProfileLoading ||
+        isStatusUpdating ||
+        isMealUpdating ||
+        isPhoneSaving ||
+        isContinuousStayUpdating
+      ) {
+        <div class="loading-overlay">
+          <mat-spinner diameter="40"></mat-spinner>
+        </div>
+      }
+    </mat-card>
+  </section>
+} @else {
+  <div class="profile-empty">
+    <mat-icon>person_off</mat-icon>
+    <p>No profile information available. Please sign in first.</p>
+  </div>
+}

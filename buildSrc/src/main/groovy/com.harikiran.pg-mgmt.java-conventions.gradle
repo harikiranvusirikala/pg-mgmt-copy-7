@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.harikiran.pg-mgmt'
+version = '1.0'
+
+java.sourceCompatibility = JavaVersion.VERSION_21
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Javadoc) {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2/')
+    }
+}
+
+dependencies {
+    implementation platform('org.springframework.boot:spring-boot-starter-parent:3.5.6') {
+        exclude group:'junit', module:'junit'
+    }
+    testImplementation 'junit:junit:4.13.2'
+}

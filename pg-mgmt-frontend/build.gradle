@@ -1,0 +1,20 @@
+plugins {
+    id 'com.harikiran.pg-mgmt.java-conventions'
+}
+
+processResources {
+    dependsOn "buildAngular"
+}
+
+task buildAngular(type:Exec) {
+    dependsOn "installAngular"
+    group = BasePlugin.BUILD_GROUP
+    commandLine "ng", "build", "--configuration", "production"
+}
+
+task installAngular(type:Exec) {
+    group = BasePlugin.BUILD_GROUP
+    commandLine "npm", "install"
+}
+
+description = 'PG Management FrontEnd'

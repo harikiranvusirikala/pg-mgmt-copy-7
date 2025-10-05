@@ -1,0 +1,135 @@
+<mat-toolbar color="primary" class="app-toolbar">
+  <button mat-button class="brand" routerLink="/">
+    <mat-icon class="brand-icon">apartment</mat-icon>
+    <span>{{ title }}</span>
+  </button>
+
+  <span class="spacer"></span>
+
+  <!-- Theme toggle keeps the UI comfy in light or dark rooms. -->
+  <button
+    mat-icon-button
+    class="theme-toggle-button"
+    type="button"
+    (click)="toggleTheme()"
+    [matTooltip]="themeTooltip"
+    aria-label="Toggle color theme"
+  >
+    <mat-icon>{{ themeIcon }}</mat-icon>
+  </button>
+
+  @if (adminLoggedIn$ | async) {
+    <button
+      mat-icon-button
+      class="mobile-menu-button"
+      aria-label="Open admin navigation"
+      [matMenuTriggerFor]="adminMenu"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <mat-menu #adminMenu="matMenu">
+      <button mat-menu-item routerLink="/admin/home">🏠 Home</button>
+      <button mat-menu-item routerLink="/admin/setup">🛠️ Setup</button>
+      <button mat-menu-item routerLink="/admin/rooms">🚪 Rooms</button>
+      <button mat-menu-item routerLink="/admin/tenants">👥 Tenants</button>
+      <button mat-menu-item routerLink="/admin/report">📊 Report</button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logoutAdmin()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+
+    <div class="nav-links">
+      <a mat-button routerLink="/admin/home" routerLinkActive="active-link"
+        >🏠 Home</a
+      >
+      <a mat-button routerLink="/admin/setup" routerLinkActive="active-link"
+        >🛠️ Setup</a
+      >
+      <a mat-button routerLink="/admin/rooms" routerLinkActive="active-link"
+        >🚪 Rooms</a
+      >
+      <a mat-button routerLink="/admin/tenants" routerLinkActive="active-link"
+        >👥 Tenants</a
+      >
+      <a mat-button routerLink="/admin/report" routerLinkActive="active-link"
+        >📊 Report</a
+      >
+    </div>
+    @if (admin$ | async; as admin) {
+      <span class="welcome-text"> Hi, {{ admin.name }} 👋 </span>
+    }
+    <button
+      mat-stroked-button
+      color="accent"
+      class="logout-button desktop-only"
+      (click)="logoutAdmin()"
+    >
+      <mat-icon>logout</mat-icon>
+      Logout
+    </button>
+  } @else {
+    @if (userLoggedIn$ | async) {
+      <button
+        mat-icon-button
+        class="mobile-menu-button"
+        aria-label="Open user navigation"
+        [matMenuTriggerFor]="userMenu"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <mat-menu #userMenu="matMenu">
+        <button mat-menu-item routerLink="/user/profile">👤 Profile</button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logoutUser()">
+          <mat-icon>logout</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+
+      <div class="nav-links">
+        <a mat-button routerLink="/user/profile" routerLinkActive="active-link"
+          >👤 Profile</a
+        >
+      </div>
+      @if (tenant$ | async; as tenant) {
+        <span class="welcome-text"> Hi, {{ tenant.name }} 👋 </span>
+      }
+      <button
+        mat-stroked-button
+        color="accent"
+        class="logout-button desktop-only"
+        (click)="logoutUser()"
+      >
+        <mat-icon>logout</mat-icon>
+        Logout
+      </button>
+    } @else {
+      <button
+        mat-icon-button
+        class="mobile-menu-button"
+        aria-label="Open guest navigation"
+        [matMenuTriggerFor]="guestMenu"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <mat-menu #guestMenu="matMenu">
+        <button mat-menu-item routerLink="/admin/login">🛡️ Admin Login</button>
+        <button mat-menu-item routerLink="/user/login">🔑 User Login</button>
+      </mat-menu>
+
+      <div class="nav-links">
+        <a mat-button routerLink="/admin/login">🛡️ Admin Login</a>
+        <a mat-button routerLink="/user/login">🔑 User Login</a>
+      </div>
+    }
+  }
+</mat-toolbar>
+
+<div class="main-content">
+  <router-outlet></router-outlet>
+</div>

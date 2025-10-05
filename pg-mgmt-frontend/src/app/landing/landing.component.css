@@ -1,0 +1,116 @@
+:host {
+  display: block;
+}
+
+.landing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 128px);
+  padding: 2.5rem var(--layout-horizontal-padding);
+  background: var(--gradient-hero);
+}
+
+.hero-card {
+  max-width: 560px;
+  width: 100%;
+  text-align: center;
+  padding: 1.5rem 1.75rem 2.25rem;
+  border-radius: 24px;
+  background: var(--surface-card);
+  box-shadow: 0 30px 70px rgba(37, 99, 235, 0.15);
+}
+
+mat-card-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--brand-primary-600);
+}
+
+mat-card-subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+mat-card-content p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.cta-buttons button[mat-raised-button] {
+  min-width: 140px;
+  border-radius: 999px;
+  padding: 0.65rem 1.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.cta-buttons button[mat-raised-button]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.22);
+}
+
+.cta-buttons button[mat-raised-button][color="accent"] {
+  background: linear-gradient(135deg, var(--brand-secondary), #fb923c);
+  color: #fff;
+}
+
+.cta-buttons button[mat-raised-button][color="accent"]:hover {
+  box-shadow: 0 20px 38px rgba(249, 115, 22, 0.3);
+}
+
+@media (max-width: 720px) {
+  .landing {
+    padding: 2rem var(--layout-horizontal-padding);
+  }
+
+  mat-card-title {
+    font-size: 1.6rem;
+  }
+
+  mat-card-content p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-card {
+    padding: 1.25rem 1.1rem 1.75rem;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .cta-buttons button[mat-raised-button] {
+    width: 100%;
+  }
+}
+
+@media (max-width: 420px) {
+  .landing {
+    padding: 1.5rem var(--layout-horizontal-padding);
+  }
+
+  mat-card-title {
+    font-size: 1.4rem;
+  }
+
+  mat-card-content p {
+    font-size: 0.95rem;
+  }
+}

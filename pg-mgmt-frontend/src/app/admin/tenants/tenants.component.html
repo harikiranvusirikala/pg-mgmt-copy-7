@@ -1,0 +1,358 @@
+<mat-card class="tenants-card">
+  <mat-card-title>Tenant List</mat-card-title>
+
+  @if (isLoadingTenants) {
+    <div class="tenants-loading">
+      <mat-progress-spinner
+        diameter="40"
+        mode="indeterminate"
+      ></mat-progress-spinner>
+      <p>Loading tenants…</p>
+    </div>
+  }
+
+  @if (tenants.length > 0) {
+    <div class="tenants-toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search tenants</mat-label>
+        <input
+          matInput
+          type="search"
+          placeholder="Search by name / room no"
+          [value]="searchTerm"
+          (input)="onSearchChange($any($event.target).value)"
+          [disabled]="isLoadingTenants"
+        />
+        @if (hasSearchTerm) {
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            (click)="clearSearch()"
+            aria-label="Clear search"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        } @else {
+          <mat-icon matSuffix>search</mat-icon>
+        }
+      </mat-form-field>
+    </div>
+  }
+
+  @if (!isLoadingTenants && tenants.length === 0) {
+    <div class="tenants-error">
+      <p>No tenants available yet.</p>
+    </div>
+  }
+
+  @if (
+    !isLoadingTenants && tenants.length > 0 && filteredTenants.length === 0
+  ) {
+    <div class="tenants-error">
+      <p>No tenants match your search.</p>
+    </div>
+  }
+
+  @if (!isLoadingTenants && filteredTenants.length > 0) {
+    <div class="table-scroll mat-table-responsive desktop-table">
+      <mat-table
+        [dataSource]="filteredTenants"
+        class="mat-elevation-z8 tenants-table"
+        [trackBy]="trackByTenantId"
+      >
+        <!-- Status -->
+        <ng-container matColumnDef="isActive">
+          <mat-header-cell *matHeaderCellDef> Meal Status </mat-header-cell>
+          <mat-cell *matCellDef="let tenant">
+            <mat-icon
+              class="status-icon"
+              [ngClass]="
+                tenant.isActive ? 'status-icon--success' : 'status-icon--danger'
+              "
+            >
+              {{ tenant.isActive ? "check_circle" : "cancel" }}
+            </mat-icon>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Name -->
+        <ng-container matColumnDef="name">
+          <mat-header-cell *matHeaderCellDef> Name </mat-header-cell>
+          <mat-cell *matCellDef="let tenant">{{ tenant.name }}</mat-cell>
+        </ng-container>
+
+        <!-- Phone -->
+        <ng-container matColumnDef="phone">
+          <mat-header-cell *matHeaderCellDef> Phone </mat-header-cell>
+          <mat-cell *matCellDef="let tenant">
+            {{ tenant.phone || "Not provided" }}
+          </mat-cell>
+        </ng-container>
+
+        <!-- Meal -->
+        <ng-container matColumnDef="mealPreference">
+          <mat-header-cell *matHeaderCellDef> Meal Preference </mat-header-cell>
+          <mat-cell *matCellDef="let tenant">
+            {{ tenant.mealPreference || "Not specified" }}
+          </mat-cell>
+        </ng-container>
+
+        <!-- Room -->
+        <ng-container matColumnDef="roomNo">
+          <mat-header-cell *matHeaderCellDef>
+            Room
+            @if (isLoadingRooms) {
+              <mat-progress-spinner
+                diameter="16"
+                mode="indeterminate"
+                class="rooms-spinner"
+              ></mat-progress-spinner>
+            }
+          </mat-header-cell>
+          <mat-cell *matCellDef="let tenant">
+            <mat-form-field appearance="outline" class="room-select-field">
+              <mat-select
+                [value]="getCurrentRoomValue(tenant)"
+                (selectionChange)="onRoomChange(tenant, $event.value)"
+                [disabled]="isTenantUpdating(tenant.id)"
+              >
+                <mat-option [value]="null">Unassigned</mat-option>
+                @for (room of rooms; track room.id) {
+                  <mat-option
+                    [value]="getRoomOptionValue(room)"
+                    [disabled]="isRoomDisabled(room, tenant)"
+                  >
+                    {{ getRoomLabel(room) }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (isTenantUpdating(tenant.id)) {
+                <mat-progress-spinner
+                  matSuffix
+                  diameter="18"
+                  mode="indeterminate"
+                ></mat-progress-spinner>
+              }
+            </mat-form-field>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Renewal Date -->
+        <ng-container matColumnDef="renewalDate">
+          <mat-header-cell *matHeaderCellDef> Renewal Date </mat-header-cell>
+          <mat-cell *matCellDef="let tenant">
+            <mat-form-field appearance="outline" class="renewal-date-field">
+              <input
+                matInput
+                [matDatepicker]="picker"
+                [min]="minRenewalDate"
+                [value]="tenant.renewalDate ?? null"
+                (dateChange)="onRenewalDateChange(tenant, $event.value)"
+                [disabled]="isTenantUpdating(tenant.id)"
+                placeholder="Select date"
+              />
+              <span matSuffix class="renewal-date-actions">
+                @if (tenant.renewalDate) {
+                  <button
+                    mat-icon-button
+                    class="clear-renewal-button"
+                    type="button"
+                    aria-label="Clear renewal date"
+                    (click)="clearRenewalDate($event, tenant)"
+                    [disabled]="isTenantUpdating(tenant.id)"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+                <mat-datepicker-toggle
+                  [for]="picker"
+                  [disabled]="isTenantUpdating(tenant.id)"
+                ></mat-datepicker-toggle>
+                @if (isTenantUpdating(tenant.id)) {
+                  <mat-progress-spinner
+                    diameter="18"
+                    mode="indeterminate"
+                  ></mat-progress-spinner>
+                }
+              </span>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Continuous Stay -->
+        <ng-container matColumnDef="continuousStay">
+          <mat-header-cell *matHeaderCellDef> Continuous Stay </mat-header-cell>
+          <mat-cell *matCellDef="let tenant">
+            <mat-icon
+              class="status-icon"
+              [ngClass]="
+                tenant.continuousStay
+                  ? 'status-icon--success'
+                  : 'status-icon--danger'
+              "
+            >
+              {{ tenant.continuousStay ? "check_circle" : "cancel" }}
+            </mat-icon>
+          </mat-cell>
+        </ng-container>
+
+        <!-- Payment Due -->
+        <ng-container matColumnDef="due">
+          <mat-header-cell *matHeaderCellDef> Payment Due </mat-header-cell>
+          <mat-cell *matCellDef="let tenant">
+            <mat-icon
+              class="status-icon"
+              [ngClass]="
+                tenant.due ? 'status-icon--high-danger' : 'status-icon--success'
+              "
+            >
+              {{ tenant.due ? "error" : "check_circle" }}
+            </mat-icon>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="columns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: columns"></mat-row>
+      </mat-table>
+    </div>
+
+    <div class="mobile-tenants">
+      @for (tenant of filteredTenants; track trackByTenantId($index, tenant)) {
+        <div class="tenant-card">
+          <div class="tenant-card__header">
+            <div class="tenant-card__identity">
+              <h3 class="tenant-card__name">{{ tenant.name }}</h3>
+              <span class="tenant-card__phone">
+                {{ tenant.phone || "Not provided" }}
+              </span>
+            </div>
+
+            <mat-icon
+              class="status-icon tenant-card__primary-status"
+              [ngClass]="
+                tenant.isActive ? 'status-icon--success' : 'status-icon--danger'
+              "
+            >
+              {{ tenant.isActive ? "check_circle" : "cancel" }}
+            </mat-icon>
+          </div>
+
+          <div class="tenant-card__section">
+            <span class="tenant-card__label">Meal Preference</span>
+            <span class="tenant-card__value">
+              {{ tenant.mealPreference || "Not specified" }}
+            </span>
+          </div>
+
+          <div class="tenant-card__section tenant-card__room">
+            <div class="tenant-card__label-group">
+              <span class="tenant-card__label">Room</span>
+              @if (isLoadingRooms) {
+                <mat-progress-spinner
+                  diameter="16"
+                  mode="indeterminate"
+                  class="rooms-spinner"
+                ></mat-progress-spinner>
+              }
+            </div>
+            <mat-form-field appearance="outline" class="room-select-field">
+              <mat-select
+                [value]="getCurrentRoomValue(tenant)"
+                (selectionChange)="onRoomChange(tenant, $event.value)"
+                [disabled]="isTenantUpdating(tenant.id)"
+              >
+                <mat-option [value]="null">Unassigned</mat-option>
+                @for (room of rooms; track room.id) {
+                  <mat-option
+                    [value]="getRoomOptionValue(room)"
+                    [disabled]="isRoomDisabled(room, tenant)"
+                  >
+                    {{ getRoomLabel(room) }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (isTenantUpdating(tenant.id)) {
+                <mat-progress-spinner
+                  matSuffix
+                  diameter="18"
+                  mode="indeterminate"
+                ></mat-progress-spinner>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="tenant-card__section tenant-card__renewal">
+            <span class="tenant-card__label">Renewal Date</span>
+            <mat-form-field appearance="outline" class="renewal-date-field">
+              <input
+                matInput
+                [matDatepicker]="mobilePicker"
+                [min]="minRenewalDate"
+                [value]="tenant.renewalDate ?? null"
+                (dateChange)="onRenewalDateChange(tenant, $event.value)"
+                [disabled]="isTenantUpdating(tenant.id)"
+                placeholder="Select date"
+              />
+              <span matSuffix class="renewal-date-actions">
+                @if (tenant.renewalDate) {
+                  <button
+                    mat-icon-button
+                    class="clear-renewal-button"
+                    type="button"
+                    aria-label="Clear renewal date"
+                    (click)="clearRenewalDate($event, tenant)"
+                    [disabled]="isTenantUpdating(tenant.id)"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+                <mat-datepicker-toggle
+                  [for]="mobilePicker"
+                  [disabled]="isTenantUpdating(tenant.id)"
+                ></mat-datepicker-toggle>
+                @if (isTenantUpdating(tenant.id)) {
+                  <mat-progress-spinner
+                    diameter="18"
+                    mode="indeterminate"
+                  ></mat-progress-spinner>
+                }
+              </span>
+              <mat-datepicker #mobilePicker></mat-datepicker>
+            </mat-form-field>
+          </div>
+
+          <div class="tenant-card__status-grid">
+            <div class="tenant-card__status">
+              <mat-icon
+                class="status-icon"
+                [ngClass]="
+                  tenant.continuousStay
+                    ? 'status-icon--success'
+                    : 'status-icon--danger'
+                "
+              >
+                {{ tenant.continuousStay ? "check_circle" : "cancel" }}
+              </mat-icon>
+              <span>Continuous stay</span>
+            </div>
+            <div class="tenant-card__status">
+              <mat-icon
+                class="status-icon"
+                [ngClass]="
+                  tenant.due
+                    ? 'status-icon--high-danger'
+                    : 'status-icon--success'
+                "
+              >
+                {{ tenant.due ? "error" : "check_circle" }}
+              </mat-icon>
+              <span>{{ tenant.due ? "Payment due" : "Payments clear" }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</mat-card>

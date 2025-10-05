@@ -1,0 +1,67 @@
+<mat-card class="rooms-card">
+  <mat-card-header>
+    <div>
+      <mat-card-title>Rooms overview</mat-card-title>
+      <mat-card-subtitle>Grouped by floor</mat-card-subtitle>
+    </div>
+  </mat-card-header>
+  <mat-card-content>
+    @if (isLoading) {
+      <div class="loading-state" aria-live="polite">
+        <mat-progress-spinner
+          diameter="40"
+          mode="indeterminate"
+        ></mat-progress-spinner>
+        <span>Loading rooms…</span>
+      </div>
+    }
+
+    @if (!isLoading && errorMessage) {
+      <div class="error-state" role="alert">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <span>{{ errorMessage }}</span>
+      </div>
+    }
+
+    @if (!isLoading && !errorMessage) {
+      @if (roomsByFloor.length > 0) {
+        @for (floor of roomsByFloor; track floor.floorLabel) {
+          <section class="floor-section">
+            <header class="floor-header">
+              <div class="floor-title">
+                <mat-icon>stairs</mat-icon>
+                <h3>Floor {{ floor.floorLabel }}</h3>
+              </div>
+              <span class="count-chip">{{ floor.rooms.length }} rooms</span>
+            </header>
+
+            <div class="rooms-grid">
+              @for (room of floor.rooms; track room.id) {
+                <div
+                  class="room-card"
+                  [style.--occupancy-alpha]="getOccupancyAlpha(room)"
+                >
+                  <div class="room-number">{{ room.roomNo }}</div>
+                  <div class="room-meta">
+                    <span>Capacity: {{ room.capacity }}</span>
+                    <span>Occupied: {{ room.allocatedCount }}</span>
+                  </div>
+                  @if (room.comments) {
+                    <div class="room-comments">
+                      {{ room.comments }}
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </section>
+        }
+      } @else {
+        <div class="empty-state">
+          <mat-icon>meeting_room</mat-icon>
+          <p>No rooms available yet.</p>
+        </div>
+      }
+    }
+  </mat-card-content>
+</mat-card>
