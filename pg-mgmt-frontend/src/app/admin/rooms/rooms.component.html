@@ -1,8 +1,26 @@
 <mat-card class="rooms-card">
   <mat-card-header>
-    <div>
-      <mat-card-title>Rooms overview</mat-card-title>
-      <mat-card-subtitle>Grouped by floor</mat-card-subtitle>
+    <div class="header-content">
+      <div>
+        <mat-card-title>Rooms overview</mat-card-title>
+        <mat-card-subtitle>Grouped by floor</mat-card-subtitle>
+      </div>
+
+      <mat-form-field appearance="outline" class="floor-filter">
+        <mat-label>Filter by floor</mat-label>
+        <mat-select
+          [value]="selectedFloorLabel"
+          (valueChange)="onFloorFilterChange($event)"
+          data-testid="rooms-floor-filter"
+        >
+          <mat-option [value]="ALL_FLOORS_OPTION">All floors</mat-option>
+          @for (floor of roomsByFloor; track floor.floorLabel) {
+            <mat-option [value]="floor.floorLabel">
+              Floor {{ floor.floorLabel }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
     </div>
   </mat-card-header>
   <mat-card-content>
@@ -24,8 +42,8 @@
     }
 
     @if (!isLoading && !errorMessage) {
-      @if (roomsByFloor.length > 0) {
-        @for (floor of roomsByFloor; track floor.floorLabel) {
+      @if (filteredFloors.length > 0) {
+        @for (floor of filteredFloors; track floor.floorLabel) {
           <section class="floor-section">
             <header class="floor-header">
               <div class="floor-title">
@@ -59,7 +77,7 @@
       } @else {
         <div class="empty-state">
           <mat-icon>meeting_room</mat-icon>
-          <p>No rooms available yet.</p>
+          <p>No rooms found for the selected floor.</p>
         </div>
       }
     }

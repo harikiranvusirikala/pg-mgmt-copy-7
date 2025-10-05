@@ -15,7 +15,9 @@ interface FloorGroup {
 })
 /** Presents rooms grouped by floor along with occupancy highlights for admins. */
 export class RoomsComponent implements OnInit {
+  readonly ALL_FLOORS_OPTION = 'ALL';
   roomsByFloor: FloorGroup[] = [];
+  selectedFloorLabel = this.ALL_FLOORS_OPTION;
   isLoading = false;
   errorMessage: string | null = null;
 
@@ -32,6 +34,7 @@ export class RoomsComponent implements OnInit {
     this.roomService.getRooms().subscribe({
       next: (rooms) => {
         this.roomsByFloor = this.buildFloorGroups(rooms);
+        this.ensureValidFloorSelection();
         this.isLoading = false;
       },
       error: (error) => {
@@ -41,6 +44,19 @@ export class RoomsComponent implements OnInit {
         this.isLoading = false;
       },
     });
+  }
+
+  get filteredFloors(): FloorGroup[] {
+    if (this.selectedFloorLabel === this.ALL_FLOORS_OPTION) {
+      return this.roomsByFloor;
+    }
+    return this.roomsByFloor.filter(
+      (floor) => floor.floorLabel === this.selectedFloorLabel,
+    );
+  }
+
+  onFloorFilterChange(floorLabel: string): void {
+    this.selectedFloorLabel = floorLabel ?? this.ALL_FLOORS_OPTION;
   }
 
   private buildFloorGroups(rooms: Room[]): FloorGroup[] {
@@ -130,5 +146,16 @@ export class RoomsComponent implements OnInit {
 
     const parsed = Number(match[0]);
     return Number.isNaN(parsed) ? null : parsed;
+  }
+
+  private ensureValidFloorSelection(): void {
+    if (
+      this.selectedFloorLabel !== this.ALL_FLOORS_OPTION &&
+      !this.roomsByFloor.some(
+        (floor) => floor.floorLabel === this.selectedFloorLabel,
+      )
+    ) {
+      this.selectedFloorLabel = this.ALL_FLOORS_OPTION;
+    }
   }
 }

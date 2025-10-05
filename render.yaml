@@ -1,0 +1,31 @@
+version: "1"
+services:
+- type: web
+  name: saibabapg
+  runtime: static
+  repo: https://github.com/harikiranvusirikala/pg-mgmt
+  buildCommand: npm install; npm run build
+  staticPublishPath: dist/pg-mgmt-frontend/browser
+  autoDeployTrigger: commit
+  rootDir: pg-mgmt-frontend
+- type: web
+  name: saibabapg-backend
+  runtime: docker
+  repo: https://github.com/harikiranvusirikala/pg-mgmt
+  plan: free
+  envVars:
+  - key: JWT_SECRET
+    sync: false
+  - key: GOOGLE_OAUTH_CLIENT_ID
+    sync: false
+  - key: SPRING_DATA_MONGODB_DATABASE
+    sync: false
+  - key: SPRING_DATA_MONGODB_URI
+    sync: false
+  - key: APP_CORS_ALLOWED_ORIGIN
+    sync: false
+  region: oregon
+  dockerContext: .
+  dockerfilePath: ./Dockerfile
+  autoDeployTrigger: commit
+  rootDir: pg-mgmt-backend

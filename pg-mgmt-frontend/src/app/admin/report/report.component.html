@@ -17,6 +17,49 @@
   }
 
   @if (!loading && !error) {
+    <section class="chart-section allocation-chart-section">
+      <mat-card>
+        <div class="section-header">
+          <div>
+            <h2>Room Allocation Trend</h2>
+            <p class="section-subtitle">Daily snapshot captured at 4 AM IST</p>
+          </div>
+        </div>
+
+        @if (hasAllocationChartData) {
+          <div class="chart-grid">
+            <div class="chart-panel">
+              <h3>Allocated Beds</h3>
+              <div class="chart-container">
+                <canvas
+                  baseChart
+                  [data]="allocatedChartData"
+                  [options]="chartOptions"
+                  chartType="line"
+                ></canvas>
+              </div>
+            </div>
+
+            <div class="chart-panel">
+              <h3>Vacant Beds</h3>
+              <div class="chart-container">
+                <canvas
+                  baseChart
+                  [data]="vacantChartData"
+                  [options]="chartOptions"
+                  chartType="line"
+                ></canvas>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            Allocation statistics will appear here after the first daily run.
+          </div>
+        }
+      </mat-card>
+    </section>
+
     <section class="chart-section">
       <mat-card>
         <div class="section-header">
@@ -69,49 +112,6 @@
         } @else {
           <div class="empty-state">
             Meal statistics will appear here after the first scheduled run.
-          </div>
-        }
-      </mat-card>
-    </section>
-
-    <section class="chart-section allocation-chart-section">
-      <mat-card>
-        <div class="section-header">
-          <div>
-            <h2>Room Allocation Trend</h2>
-            <p class="section-subtitle">Daily snapshot captured at 4 AM IST</p>
-          </div>
-        </div>
-
-        @if (hasAllocationChartData) {
-          <div class="chart-grid">
-            <div class="chart-panel">
-              <h3>Allocated Beds</h3>
-              <div class="chart-container">
-                <canvas
-                  baseChart
-                  [data]="allocatedChartData"
-                  [options]="chartOptions"
-                  chartType="line"
-                ></canvas>
-              </div>
-            </div>
-
-            <div class="chart-panel">
-              <h3>Vacant Beds</h3>
-              <div class="chart-container">
-                <canvas
-                  baseChart
-                  [data]="vacantChartData"
-                  [options]="chartOptions"
-                  chartType="line"
-                ></canvas>
-              </div>
-            </div>
-          </div>
-        } @else {
-          <div class="empty-state">
-            Allocation statistics will appear here after the first daily run.
           </div>
         }
       </mat-card>

@@ -104,14 +104,16 @@ public class AuthController {
 							locale, hostedDomain);
 				}
 
-				Admin admin = lookupRegisteredAdmin(email);
-				if (admin == null) {
-					logger.warn("🚫 Admin login denied for unregistered email={}", email);
-					return ResponseEntity.status(HttpStatus.FORBIDDEN)
-							.body(Map.of("error", "Admin access is restricted"));
-				}
+//				Admin admin = lookupRegisteredAdmin(email);
+//				if (admin == null) {
+//					logger.warn("🚫 Admin login denied for unregistered email={}", email);
+//					return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//							.body(Map.of("error", "Admin access is restricted"));
+//				}
+//
+//				Admin refreshed = updateAdmin(admin, name, pictureUrl);
 
-				Admin refreshed = updateAdmin(admin, name, pictureUrl);
+				Admin refreshed = saveOrUpdateAdmin(name, email, pictureUrl);
 
 				String jwt = jwtUtil.generateToken(refreshed);
 
@@ -138,9 +140,16 @@ public class AuthController {
 		return idToken != null ? idToken.getPayload() : null;
 	}
 
-	private Admin lookupRegisteredAdmin(String email) {
-		logger.debug("🔐 Verifying admin registration email={} ", email);
-		return adminRepository.findByEmail(email);
+//	private Admin lookupRegisteredAdmin(String email) {
+//		logger.debug("🔐 Verifying admin registration email={} ", email);
+//		return adminRepository.findByEmail(email);
+//	}
+
+	private Admin saveOrUpdateAdmin(String name, String email, String pictureUrl) {
+		logger.debug("Looking up admin for login email={} name='{}' pictureUrlPresent={}", email, name,
+				pictureUrl != null);
+		return adminRepository.findByEmail(email).map(existing -> updateAdmin(existing, name, pictureUrl))
+				.orElseGet(() -> adminRepository.save(new Admin(name, email, pictureUrl)));
 	}
 
 	private Tenant update(Tenant tenant, String name, String pictureUrl) {

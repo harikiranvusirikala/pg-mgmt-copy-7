@@ -18,7 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.harikiran.pgmgmt.model.Admin;
 import com.harikiran.pgmgmt.model.Tenant;
 import com.harikiran.pgmgmt.repository.AdminRepository;
 import com.harikiran.pgmgmt.repository.TenantRepository;
@@ -92,8 +91,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private boolean userExists(String email, String role) {
 		if ("admin".equalsIgnoreCase(role)) {
-			Admin admin = adminRepository.findByEmail(email);
-			return admin != null;
+			return adminRepository.findByEmail(email) != null;
 		}
 
 		Optional<Tenant> tenant = tenantRepository.findByEmail(email);

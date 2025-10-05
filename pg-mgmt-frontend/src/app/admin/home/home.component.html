@@ -81,8 +81,8 @@
               <thead>
                 <tr>
                   <th>Room</th>
-                  <th>Name</th>
                   <th>Renewal Date</th>
+                  <th>Name</th>
                 </tr>
               </thead>
               <tbody>
@@ -92,13 +92,13 @@
                 ) {
                   <tr>
                     <td>{{ tenant.roomNo || "—" }}</td>
-                    <td>{{ tenant.name }}</td>
                     <td>
                       {{
                         tenant.renewalDate
                           | date: "mediumDate" : undefined : "en-US"
                       }}
                     </td>
+                    <td>{{ tenant.name }}</td>
                   </tr>
                 }
               </tbody>
@@ -129,21 +129,21 @@
               <thead>
                 <tr>
                   <th>Room</th>
-                  <th>Name</th>
                   <th>Vacate Date</th>
+                  <th>Name</th>
                 </tr>
               </thead>
               <tbody>
                 @for (tenant of topTenants; track trackTenant($index, tenant)) {
                   <tr>
                     <td>{{ tenant.roomNo || "—" }}</td>
-                    <td>{{ tenant.name }}</td>
                     <td>
                       {{
                         tenant.renewalDate
                           | date: "mediumDate" : undefined : "en-US"
                       }}
                     </td>
+                    <td>{{ tenant.name }}</td>
                   </tr>
                 }
               </tbody>
