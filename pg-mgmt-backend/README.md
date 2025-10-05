@@ -1,6 +1,6 @@
 # PG Management Backend
 
-## Configuration
+## 🔧 Configuration
 
 | Property | Description | Example |
 | --- | --- | --- |

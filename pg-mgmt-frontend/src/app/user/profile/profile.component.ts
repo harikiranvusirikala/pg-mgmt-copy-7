@@ -158,7 +158,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
         this.user = normalizedUser;
         this.isStatusUpdating = false;
         this.snackBar.open(
-          `✅ Meal ${newStatus ? 'activated' : 'deactivated'}.`,
+          `✅ Meal status ${newStatus ? 'activated' : 'deactivated'}.`,
           'Dismiss',
           { duration: 3500 },
         );

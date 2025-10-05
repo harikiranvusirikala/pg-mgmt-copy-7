@@ -1,0 +1,62 @@
+# Spring Boot Actuator Configuration
+# Provides health checks, metrics, and monitoring endpoints for production
+
+management:
+  endpoints:
+    web:
+      # Base path for all actuator endpoints
+      base-path: /actuator
+      exposure:
+        # Expose only necessary endpoints for production security
+        include: health,info,metrics,prometheus
+  
+  endpoint:
+    health:
+      # Enable detailed health information
+      show-details: when-authorized
+      # Include custom health indicators
+      show-components: when-authorized
+      probes:
+        enabled: true
+      group:
+        # Liveness probe - checks if app is running
+        liveness:
+          include: ping
+        # Readiness probe - checks if app can accept traffic
+        readiness:
+          include: readinessState,mongo,diskSpace
+  
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: ${spring.profiles.active:default}
+
+  info:
+    # Enable build and git info in /actuator/info
+    build:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+#  prometheus:
+#    metrics:
+#      export:
+#        enabled: true
+#        pushgateway:
+#          enabled: true
+##          base-url: https://prometheus-prod-XX-XXX.grafana.net/api/prom/push
+#					base-url: https://prometheus-prod-43-prod-ap-south-1.grafana.net/api/prom/push
+
+# Security for actuator endpoints
+spring:
+  security:
+    user:
+      name: ${ACTUATOR_USERNAME}
+      password: ${ACTUATOR_PASSWORD}
+      roles: ACTUATOR

@@ -122,6 +122,16 @@ button.logout-button:hover {
   transform: rotate(-8deg) scale(1.05);
 }
 
+:host ::ng-deep .mat-mdc-menu-item.menu-active {
+  background-color: var(--surface-hover, rgba(0, 0, 0, 0.08));
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+:host ::ng-deep .mat-mdc-menu-item.menu-active .mdc-list-item__primary-text {
+  color: inherit;
+}
+
 @media (max-width: 900px) {
   .app-toolbar {
     flex-wrap: wrap;

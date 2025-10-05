@@ -1,0 +1,53 @@
+groups:
+  - name: pg_mgmt_alerts
+    interval: 30s
+    rules:
+      # Application down
+      - alert: ApplicationDown
+        expr: up{job="pg-mgmt-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PG Management backend is down"
+          description: "Application has been down for more than 2 minutes"
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_seconds_count{job="pg-mgmt-backend",status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High 5xx error rate detected"
+          description: "Error rate is {{ $value }} errors/sec"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (jvm_memory_used_bytes{area="heap"} / jvm_memory_max_bytes{area="heap"}) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High JVM memory usage"
+          description: "Memory usage is at {{ $value | humanizePercentage }}"
+
+      # Slow API responses
+      - alert: SlowAPIResponses
+        expr: http_server_requests_seconds{quantile="0.95"} > 2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "API responses are slow"
+          description: "95th percentile response time is {{ $value }}s"
+
+      # MongoDB connection issues
+      - alert: MongoDBConnectionIssues
+        expr: mongodb_driver_pool_checkedout{job="pg-mgmt-backend"} == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No active MongoDB connections"
+          description: "Application may have lost database connectivity"

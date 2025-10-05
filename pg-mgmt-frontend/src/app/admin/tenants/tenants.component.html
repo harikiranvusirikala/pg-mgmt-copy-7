@@ -14,11 +14,11 @@
   @if (tenants.length > 0) {
     <div class="tenants-toolbar">
       <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search tenants</mat-label>
+        <mat-label>Search Name / Room #</mat-label>
         <input
           matInput
           type="search"
-          placeholder="Search by name / room no"
+          placeholder="Search Name / Room #"
           [value]="searchTerm"
           (input)="onSearchChange($any($event.target).value)"
           [disabled]="isLoadingTenants"

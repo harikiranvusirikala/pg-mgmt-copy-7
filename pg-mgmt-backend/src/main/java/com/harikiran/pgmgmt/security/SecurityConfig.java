@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -44,8 +45,15 @@ public class SecurityConfig {
 
 	@SuppressWarnings("removal")
 	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http.csrf(csrf -> csrf.disable()).cors(cors -> cors.configurationSource(corsConfigurationSource()))
+	@Order(100) // Process after actuator security (order 1)
+	public SecurityFilterChain securityFilterChain(HttpSecurity http, AppProperties appProperties) throws Exception {
+
+		http
+				// Explicitly exclude actuator endpoints from this security chain
+				.securityMatcher(request -> {
+					String uri = request.getRequestURI();
+					return !uri.startsWith("/actuator");
+				}).csrf(csrf -> csrf.disable()).cors(cors -> cors.configurationSource(corsConfigurationSource()))
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.exceptionHandling(ex -> ex.authenticationEntryPoint(restAuthenticationEntryPoint))
 				.authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()

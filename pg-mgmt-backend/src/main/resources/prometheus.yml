@@ -1,0 +1,28 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# Load alert rules
+rule_files:
+  - "prometheus-alerts.yml"
+  
+remote_write:
+  - url: https://prometheus-prod-43-prod-ap-south-1.grafana.net/api/prom/push
+    basic_auth:
+      username: ${GRAFANA_USERNAME}
+      password: ${GRAFANA_PASSWORD}
+
+scrape_configs:
+  - job_name: 'pg-mgmt-backend'
+    metrics_path: '/actuator/prometheus'
+    basic_auth:
+      username: ${PROMETHEUS_USERNAME}
+      password: ${PROMETHEUS_PASSWORD}
+    static_configs:
+      - targets: ['saibabapg-backend-test.onrender.com']
+        labels:
+          application: 'pg-management'
+          environment: 'production'
+  - job_name: node
+    static_configs:
+      - targets: ["localhost:9090"]

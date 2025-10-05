@@ -29,11 +29,46 @@
     </button>
 
     <mat-menu #adminMenu="matMenu">
-      <button mat-menu-item routerLink="/admin/home">🏠 Home</button>
-      <button mat-menu-item routerLink="/admin/setup">🛠️ Setup</button>
-      <button mat-menu-item routerLink="/admin/rooms">🚪 Rooms</button>
-      <button mat-menu-item routerLink="/admin/tenants">👥 Tenants</button>
-      <button mat-menu-item routerLink="/admin/report">📊 Report</button>
+      <button
+        mat-menu-item
+        routerLink="/admin/home"
+        routerLinkActive="menu-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        🏠 Home
+      </button>
+      <button
+        mat-menu-item
+        routerLink="/admin/setup"
+        routerLinkActive="menu-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        🛠️ Setup
+      </button>
+      <button
+        mat-menu-item
+        routerLink="/admin/rooms"
+        routerLinkActive="menu-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        🚪 Rooms
+      </button>
+      <button
+        mat-menu-item
+        routerLink="/admin/tenants"
+        routerLinkActive="menu-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        👥 Tenants
+      </button>
+      <button
+        mat-menu-item
+        routerLink="/admin/report"
+        routerLinkActive="menu-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        📊 Report
+      </button>
       <mat-divider></mat-divider>
       <button mat-menu-item (click)="logoutAdmin()">
         <mat-icon>logout</mat-icon>
@@ -82,7 +117,14 @@
       </button>
 
       <mat-menu #userMenu="matMenu">
-        <button mat-menu-item routerLink="/user/profile">👤 Profile</button>
+        <button
+          mat-menu-item
+          routerLink="/user/profile"
+          routerLinkActive="menu-active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          👤 Profile
+        </button>
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="logoutUser()">
           <mat-icon>logout</mat-icon>
@@ -118,8 +160,22 @@
       </button>
 
       <mat-menu #guestMenu="matMenu">
-        <button mat-menu-item routerLink="/admin/login">🛡️ Admin Login</button>
-        <button mat-menu-item routerLink="/user/login">🔑 User Login</button>
+        <button
+          mat-menu-item
+          routerLink="/admin/login"
+          routerLinkActive="menu-active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          🛡️ Admin Login
+        </button>
+        <button
+          mat-menu-item
+          routerLink="/user/login"
+          routerLinkActive="menu-active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          🔑 User Login
+        </button>
       </mat-menu>
 
       <div class="nav-links">

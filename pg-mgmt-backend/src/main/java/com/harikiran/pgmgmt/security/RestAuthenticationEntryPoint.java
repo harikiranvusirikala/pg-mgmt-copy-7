@@ -19,6 +19,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/**
+ * Custom authentication entry point for REST API endpoints. Returns JSON error
+ * responses instead of redirecting to login page.ACTUATOR_USERNAME Skips
+ * actuator endpoints to avoid interfering with Basic auth.
+ */
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
@@ -28,17 +33,29 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-		logger.debug("Unauthorized access to {}", request.getRequestURI());
+
+		String requestUri = request.getRequestURI();
+
+		// Skip logging and handling for actuator endpoints - they use Basic auth
+		if (requestUri.startsWith("/actuator")) {
+			return;
+		}
+
+		// Skip logging for error page (prevents duplicate logs)
+		if (!requestUri.equals("/error")) {
+			logger.debug("🔒 Unauthorized API access attempt: {}", requestUri);
+		}
 
 		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		Map<String, Object> body = new HashMap<>();
-		body.put("timestamp", Instant.now().toString());
-		body.put("status", HttpStatus.UNAUTHORIZED.value());
-		body.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
-		body.put("message", authException.getMessage());
-		body.put("path", request.getRequestURI());
 
-		objectMapper.writeValue(response.getOutputStream(), body);
+		Map<String, Object> errorDetails = new HashMap<>();
+		errorDetails.put("timestamp", Instant.now().toString());
+		errorDetails.put("status", HttpStatus.UNAUTHORIZED.value());
+		errorDetails.put("error", HttpStatus.UNAUTHORIZED.getReasonPhrase());
+		errorDetails.put("message", authException.getMessage());
+		errorDetails.put("path", requestUri);
+
+		objectMapper.writeValue(response.getOutputStream(), errorDetails);
 	}
 }
