@@ -9,7 +9,8 @@ processResources {
 task buildAngular(type:Exec) {
     dependsOn "installAngular"
     group = BasePlugin.BUILD_GROUP
-    commandLine "ng", "build", "--configuration", "production"
+    workingDir projectDir
+    commandLine "npx", "ng", "build", "--configuration", "production"
 }
 
 task installAngular(type:Exec) {
