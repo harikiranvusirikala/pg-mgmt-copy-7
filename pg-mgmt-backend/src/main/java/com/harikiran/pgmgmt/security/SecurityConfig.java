@@ -50,6 +50,7 @@ public class SecurityConfig {
 				.exceptionHandling(ex -> ex.authenticationEntryPoint(restAuthenticationEntryPoint))
 				.authorizeHttpRequests(authorize -> authorize.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						.requestMatchers(HttpMethod.GET, "/", "/index.html", "/favicon.ico", "/static/**", "/assets/**",
+								"/*.js", "/*.css", "/*.ico", "/*.png", "/*.jpg", "/*.svg", "/*.woff", "/*.woff2", "/*.ttf", "/*.eot",
 								"/actuator/health")
 						.permitAll().requestMatchers("/auth/**").permitAll().anyRequest().authenticated())
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
