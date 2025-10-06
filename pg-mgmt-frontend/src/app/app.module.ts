@@ -117,6 +117,7 @@ export class AuthTokenInterceptor implements HttpInterceptor {
       provide: SOCIAL_AUTH_CONFIG,
       useValue: {
         autoLogin: false,
+        oneTapEnabled: false,
         providers: [
           {
             id: GoogleLoginProvider.PROVIDER_ID,
