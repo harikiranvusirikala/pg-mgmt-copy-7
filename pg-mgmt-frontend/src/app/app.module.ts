@@ -118,6 +118,7 @@ export class AuthTokenInterceptor implements HttpInterceptor {
       useValue: {
         autoLogin: false,
         lazyLoad: true,
+        oneTapEnabled: false,
         providers: [
           {
             id: GoogleLoginProvider.PROVIDER_ID,
