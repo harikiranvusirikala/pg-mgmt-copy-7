@@ -67,6 +67,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private readonly snackBar: MatSnackBar,
   ) {}
 
+  /**
+   * Initializes the profile view by loading the currently cached tenant and fetching the latest profile from the API.
+   *
+   * Also subscribes to `currentUser$` so that the profile reacts to authentication updates emitted elsewhere in the app.
+   */
   ngOnInit(): void {
     this.user = this.authService.getCurrentUser();
 
@@ -93,14 +98,25 @@ export class ProfileComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Releases all subscriptions when the component leaves the view.
+   */
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
+  /**
+   * Derives the human readable account status label shown in the profile header.
+   */
   get accountStatusLabel(): string {
     return this.user?.isActive ? 'Active' : 'Inactive';
   }
 
+  /**
+   * Determines whether the "Save" button for the phone number should be enabled.
+   *
+   * The control is enabled only when a valid 10 digit phone number is entered and differs from the stored value.
+   */
   get canSavePhone(): boolean {
     if (
       !this.user?.id ||
@@ -117,6 +133,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return controlValue !== currentPhone && this.phoneControl.valid;
   }
 
+  /**
+   * Forces a fresh profile fetch from the server, refreshing the cached tenant details.
+   */
   refreshProfile(): void {
     if (!this.user?.email) {
       this.snackBar.open(
@@ -132,6 +151,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.fetchLatestProfile(this.user.email, true);
   }
 
+  /**
+   * Toggles the tenant's meal status (active/inactive) while handling optimistic UI updates and rollback on error.
+   *
+   * @param event - The slide toggle change event emitted by Angular Material.
+   */
   onActiveToggle(event: MatSlideToggleChange): void {
     if (!this.user?.id) {
       event.source.checked = !!this.user?.isActive;
@@ -178,6 +202,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Persists the selected meal preference to the backend while reverting the UI if the call fails.
+   *
+   * @param event - Material select change event carrying the chosen meal preference.
+   */
   onMealPreferenceChange(event: MatSelectChange): void {
     if (
       !this.user?.id ||
@@ -218,6 +247,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Updates the continuous stay preference and reverts the toggle if the backend rejects the change.
+   *
+   * @param event - Material slide toggle change event with the new continuous stay state.
+   */
   onContinuousStayToggle(event: MatSlideToggleChange): void {
     if (!this.user?.id) {
       event.source.checked = !!this.user?.continuousStay;
@@ -260,6 +294,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Saves the user's contact number to the backend when validation succeeds.
+   */
   savePhoneNumber(): void {
     if (!this.user?.id || !this.canSavePhone) {
       return;
@@ -292,6 +329,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Loads the latest tenant profile from the server and updates the local authentication context.
+   *
+   * @param email - Tenant email address used to identify the profile.
+   * @param showToast - When true, a success or failure toast is shown after the request completes.
+   */
   private fetchLatestProfile(email: string, showToast = false): void {
     this.isProfileLoading = true;
     this.tenantService.getTenantByEmail(email).subscribe({
@@ -321,6 +364,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Normalizes and persists the updated tenant data, synchronising reactive form controls and local storage.
+   *
+   * @param updatedTenant - Partial tenant payload returned by the backend.
+   * @param message - Toast message to show after a successful update.
+   */
   private handleProfileUpdate(updatedTenant: Tenant, message: string): void {
     const mergedTenant: Tenant = {
       ...(this.user ?? ({} as Tenant)),
@@ -333,6 +382,11 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.snackBar.open(message, 'Dismiss', { duration: 3000 });
   }
 
+  /**
+   * Aligns the reactive form controls with the provided tenant model without triggering extra value change events.
+   *
+   * @param tenant - The tenant whose data should populate the reactive form controls.
+   */
   private syncFormControls(tenant: Tenant): void {
     this.phoneControl.setValue(tenant.phone ?? '', { emitEvent: false });
     this.mealPreferenceControl.setValue(tenant.mealPreference ?? null, {

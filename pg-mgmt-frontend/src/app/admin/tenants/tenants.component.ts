@@ -14,7 +14,9 @@ import { RoomService, Room } from '../../core/services/room.service';
   styleUrl: './tenants.component.css',
   standalone: false,
 })
-/** Empowers admins to search, update, and manage tenant details with live feedback. */
+/**
+ * Provides tenant management workflows including room assignments, renewals, and filtering.
+ */
 export class TenantsComponent implements OnInit, OnDestroy {
   tenants: Tenant[] = [];
   filteredTenants: Tenant[] = [];
@@ -54,14 +56,23 @@ export class TenantsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Supplies a stable identifier for rendered tenant rows.
+   */
   trackByTenantId(_: number, tenant: Tenant): string | undefined {
     return tenant.id;
   }
 
+  /**
+   * Indicates whether a search filter is currently applied.
+   */
   get hasSearchTerm(): boolean {
     return this.searchTerm.trim().length > 0;
   }
 
+  /**
+   * Determines if the UI should show a loading indicator for a tenant action.
+   */
   isTenantUpdating(tenantId?: string): boolean {
     if (!tenantId) {
       return false;
@@ -69,6 +80,9 @@ export class TenantsComponent implements OnInit, OnDestroy {
     return this.updatingTenantIds.has(tenantId);
   }
 
+  /**
+   * Reassigns a tenant to a different room and refreshes supporting data.
+   */
   onRoomChange(tenant: Tenant, newRoomNo: string | null): void {
     if (!tenant.id) {
       this.snackBar.open('⚠️ Tenant identifier is missing.', 'Dismiss', {
@@ -114,6 +128,9 @@ export class TenantsComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Updates a tenant's renewal date while enforcing validation rules.
+   */
   onRenewalDateChange(tenant: Tenant, newDate: Date | null): void {
     if (!tenant.id) {
       this.snackBar.open('⚠️ Tenant identifier is missing.', 'Dismiss', {
@@ -176,16 +193,25 @@ export class TenantsComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Clears the renewal date via the UI control.
+   */
   clearRenewalDate(event: MouseEvent, tenant: Tenant): void {
     event.stopPropagation();
     this.onRenewalDateChange(tenant, null);
   }
 
+  /**
+   * Applies the search term to the tenant list.
+   */
   onSearchChange(term: string): void {
     this.searchTerm = term;
     this.applySearchFilter();
   }
 
+  /**
+   * Removes any active search filter.
+   */
   clearSearch(): void {
     if (!this.hasSearchTerm) {
       return;
@@ -195,6 +221,9 @@ export class TenantsComponent implements OnInit, OnDestroy {
     this.applySearchFilter();
   }
 
+  /**
+   * Disables room options that are already at capacity.
+   */
   isRoomDisabled(room: Room, tenant: Tenant): boolean {
     const optionRoom = this.normalizeRoom(room?.roomNo);
     const currentRoom = this.normalizeRoom(tenant.roomNo);
@@ -216,6 +245,9 @@ export class TenantsComponent implements OnInit, OnDestroy {
     return allocated >= capacity;
   }
 
+  /**
+   * Generates the human-friendly label for room selection options.
+   */
   getRoomLabel(room: Room): string {
     if (!room) {
       return 'Unknown';
@@ -230,14 +262,23 @@ export class TenantsComponent implements OnInit, OnDestroy {
     return `${room.roomNo} (${allocated}/${capacity})`;
   }
 
+  /**
+   * Extracts the selected room identifier for the UI control.
+   */
   getCurrentRoomValue(tenant: Tenant): string | null {
     return this.normalizeRoom(tenant?.roomNo);
   }
 
+  /**
+   * Normalizes a room value for option controls.
+   */
   getRoomOptionValue(room: Room): string | null {
     return this.normalizeRoom(room?.roomNo);
   }
 
+  /**
+   * Loads tenants from the backend and primes the filtered view.
+   */
   private loadTenants(): void {
     this.isLoadingTenants = true;
     this.tenantService
@@ -262,6 +303,9 @@ export class TenantsComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Loads room data used to populate room picker options.
+   */
   private loadRooms(): void {
     this.isLoadingRooms = true;
     this.roomService
@@ -288,6 +332,9 @@ export class TenantsComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Normalizes dates for reliable comparison semantics.
+   */
   private normalizeDateForComparison(
     value: Date | string | null | undefined,
   ): number | null {
@@ -312,6 +359,9 @@ export class TenantsComponent implements OnInit, OnDestroy {
     return midnight.getTime();
   }
 
+  /**
+   * Converts a Date into a UTC ISO string expected by the backend.
+   */
   private toUtcIsoDate(date: Date): string {
     const utcDate = new Date(
       Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
@@ -319,12 +369,18 @@ export class TenantsComponent implements OnInit, OnDestroy {
     return utcDate.toISOString();
   }
 
+  /**
+   * Computes the start-of-day for the current date.
+   */
   private getStartOfToday(): Date {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return today;
   }
 
+  /**
+   * Refreshes the cached minimum renewal date to today's midnight.
+   */
   private refreshMinRenewalDate(): void {
     const todayStart = this.getStartOfToday();
     if (this.minRenewalDate.getTime() !== todayStart.getTime()) {
@@ -332,6 +388,9 @@ export class TenantsComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Trims room numbers while treating empty values as null.
+   */
   private normalizeRoom(roomNo: string | null | undefined): string | null {
     if (!roomNo) {
       return null;
@@ -345,6 +404,9 @@ export class TenantsComponent implements OnInit, OnDestroy {
     return trimmed;
   }
 
+  /**
+   * Filters the tenant list based on the current search term.
+   */
   private applySearchFilter(): void {
     const term = this.searchTerm.trim().toLowerCase();
     if (!term) {

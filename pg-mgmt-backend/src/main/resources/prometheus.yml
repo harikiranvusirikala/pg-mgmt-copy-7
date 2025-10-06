@@ -19,7 +19,7 @@ scrape_configs:
       username: ${PROMETHEUS_USERNAME}
       password: ${PROMETHEUS_PASSWORD}
     static_configs:
-      - targets: ['saibabapg-backend-test.onrender.com']
+      - targets: [${PROMETHEUS_TARGET}]
         labels:
           application: 'pg-management'
           environment: 'production'

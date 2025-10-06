@@ -25,7 +25,9 @@ Chart.register(...registerables);
   styleUrl: './report.component.css',
   standalone: false,
 })
-/** Visualizes historical meal choices and room allocations for admin insights. */
+/**
+ * Renders historical charts for meal preferences and room allocations.
+ */
 export class ReportComponent implements OnInit {
   loading = false;
   error?: string;
@@ -47,6 +49,9 @@ export class ReportComponent implements OnInit {
     this.loadCharts();
   }
 
+  /**
+   * Fetches both meal and allocation statistics in parallel.
+   */
   private loadCharts(): void {
     this.loading = true;
     this.error = undefined;
@@ -60,6 +65,9 @@ export class ReportComponent implements OnInit {
     });
   }
 
+  /**
+   * Populates chart datasets following a successful API response.
+   */
   private handleSuccess(
     mealStats: MealStatsPoint[],
     allocationStats: AllocationStatsPoint[],
@@ -69,6 +77,9 @@ export class ReportComponent implements OnInit {
     this.configureAllocationCharts(allocationStats ?? []);
   }
 
+  /**
+   * Resets chart state and surfaces an error when data retrieval fails.
+   */
   private handleError(error: unknown): void {
     console.error('📉 Failed to load report charts', error);
     this.loading = false;
@@ -78,6 +89,9 @@ export class ReportComponent implements OnInit {
     this.resetAllocationCharts();
   }
 
+  /**
+   * Builds chart data series for meal preference trends.
+   */
   private configureMealCharts(stats: MealStatsPoint[]): void {
     if (!stats.length) {
       this.hasMealChartData = false;
@@ -152,6 +166,9 @@ export class ReportComponent implements OnInit {
     this.hasMealChartData = true;
   }
 
+  /**
+   * Builds chart data series for room allocation trends.
+   */
   private configureAllocationCharts(stats: AllocationStatsPoint[]): void {
     if (!stats.length) {
       this.hasAllocationChartData = false;
@@ -204,17 +221,26 @@ export class ReportComponent implements OnInit {
     this.hasAllocationChartData = true;
   }
 
+  /**
+   * Creates the display label for a meal statistics point.
+   */
   private buildMealLabel(stat: MealStatsPoint): string {
     const date = this.parseStatsDate(stat.statsDate);
     const formatted = formatDate(date, 'd/MM', 'en-US');
     return `${formatted} - ${stat.mealNo}`;
   }
 
+  /**
+   * Creates the display label for an allocation statistics point.
+   */
   private buildAllocationLabel(stat: AllocationStatsPoint): string {
     const date = this.parseStatsDate(stat.statsDate);
     return formatDate(date, 'd/MM', 'en-US');
   }
 
+  /**
+   * Produces consistent chart configuration shared by all graphs.
+   */
   private buildChartOptions(): ChartOptions<'line'> {
     const textPrimary = this.getCssVar('--text-primary', '#0f172a');
     const textMuted = this.getCssVar('--text-muted', '#64748b');
@@ -261,6 +287,9 @@ export class ReportComponent implements OnInit {
     } satisfies ChartConfiguration<'line'>['options'];
   }
 
+  /**
+   * Looks up a CSS custom property or falls back to a hard-coded value.
+   */
   private getCssVar(token: string, fallback: string): string {
     if (typeof window === 'undefined') {
       return fallback;
@@ -272,6 +301,9 @@ export class ReportComponent implements OnInit {
     return value?.trim() || fallback;
   }
 
+  /**
+   * Resets meal chart datasets to an empty state.
+   */
   private resetMealCharts(): void {
     this.totalChartData = { labels: [], datasets: [] };
     this.vegChartData = { labels: [], datasets: [] };
@@ -279,12 +311,18 @@ export class ReportComponent implements OnInit {
     this.hasMealChartData = false;
   }
 
+  /**
+   * Resets allocation chart datasets to an empty state.
+   */
   private resetAllocationCharts(): void {
     this.allocatedChartData = { labels: [], datasets: [] };
     this.vacantChartData = { labels: [], datasets: [] };
     this.hasAllocationChartData = false;
   }
 
+  /**
+   * Parses the stats date, tolerating null/invalid input by returning now.
+   */
   private parseStatsDate(value: string | Date | null | undefined): Date {
     if (!value) {
       return new Date();

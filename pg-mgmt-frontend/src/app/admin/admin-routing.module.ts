@@ -9,6 +9,9 @@ import { RoomsComponent } from './rooms/rooms.component';
 import { TenantsComponent } from './tenants/tenants.component';
 import { ReportComponent } from './report/report.component';
 
+/**
+ * Route map for the admin portal, protecting protected pages with the admin guard.
+ */
 const routes: Routes = [
   { path: 'login', component: AdminLoginComponent },
   {
@@ -30,4 +33,5 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
+/** Configures child routing for the admin feature area. */
 export class AdminRoutingModule {}

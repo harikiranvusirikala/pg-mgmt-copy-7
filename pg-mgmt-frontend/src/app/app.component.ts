@@ -7,15 +7,15 @@ import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { AuthService } from './core/services/auth.service';
 import { AdminAuthService } from './core/services/admin-auth.service';
 
+/**
+ * Hosts the root shell, handles theme toggling, and exposes auth state streams.
+ */
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   standalone: false,
 })
-/**
- * AppComponent hosts the shell layout, navigation, and global theme selector.
- */
 export class AppComponent implements OnInit, OnDestroy {
   protected title = 'PG Manager';
   private readonly themeStorageKey = 'pg-mgmt-theme';
@@ -48,18 +48,30 @@ export class AppComponent implements OnInit, OnDestroy {
     this.stopMediaQueryListener();
   }
 
+  /**
+   * Observable emitting the currently authenticated admin, if any.
+   */
   protected get admin$() {
     return this.adminAuthService.currentAdmin$;
   }
 
+  /**
+   * Observable emitting the currently authenticated tenant, if any.
+   */
   protected get tenant$() {
     return this.authService.currentUser$;
   }
 
+  /**
+   * Emits authentication state changes for administrators.
+   */
   protected get adminLoggedIn$() {
     return this.adminAuthService.isLoggedIn$;
   }
 
+  /**
+   * Emits authentication state changes for tenants.
+   */
   protected get userLoggedIn$() {
     return this.authService.isLoggedIn$;
   }
@@ -79,6 +91,9 @@ export class AppComponent implements OnInit, OnDestroy {
     void this.router.navigate(['/']);
   }
 
+  /**
+   * Logs out the tenant user session and routes to the landing page.
+   */
   protected logoutUser(): void {
     this.authService.logout();
     void this.socialAuthService.signOut(true);

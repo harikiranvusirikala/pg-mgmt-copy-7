@@ -13,7 +13,9 @@ interface FloorGroup {
   styleUrls: ['./rooms.component.css'],
   standalone: false,
 })
-/** Presents rooms grouped by floor along with occupancy highlights for admins. */
+/**
+ * Displays rooms grouped by floor with filtering and occupancy insights.
+ */
 export class RoomsComponent implements OnInit {
   readonly ALL_FLOORS_OPTION = 'ALL';
   roomsByFloor: FloorGroup[] = [];
@@ -27,6 +29,9 @@ export class RoomsComponent implements OnInit {
     this.loadRooms();
   }
 
+  /**
+   * Fetches rooms from the API and organizes them into floor groupings.
+   */
   private loadRooms(): void {
     this.isLoading = true;
     this.errorMessage = null;
@@ -46,6 +51,9 @@ export class RoomsComponent implements OnInit {
     });
   }
 
+  /**
+   * Returns rooms filtered by the current floor selection.
+   */
   get filteredFloors(): FloorGroup[] {
     if (this.selectedFloorLabel === this.ALL_FLOORS_OPTION) {
       return this.roomsByFloor;
@@ -55,10 +63,16 @@ export class RoomsComponent implements OnInit {
     );
   }
 
+  /**
+   * Updates the active floor filter.
+   */
   onFloorFilterChange(floorLabel: string): void {
     this.selectedFloorLabel = floorLabel ?? this.ALL_FLOORS_OPTION;
   }
 
+  /**
+   * Groups rooms by floor and sorts both floors and rooms naturally.
+   */
   private buildFloorGroups(rooms: Room[]): FloorGroup[] {
     const floorMap = new Map<string, Room[]>();
 
@@ -94,6 +108,9 @@ export class RoomsComponent implements OnInit {
     return groups.map(({ sortValue, ...group }) => group);
   }
 
+  /**
+   * Formats the raw floor value for display.
+   */
   private getFloorLabel(floor: string): string {
     if (!floor) {
       return 'Unknown';
@@ -108,11 +125,17 @@ export class RoomsComponent implements OnInit {
     return String(floorNumber);
   }
 
+  /**
+   * Determines a numeric sort key for a floor label when possible.
+   */
   private getFloorSortValue(floor: string): number {
     const floorNumber = this.findFloorNumber(floor);
     return floorNumber ?? Number.POSITIVE_INFINITY;
   }
 
+  /**
+   * Calculates an alpha value for the occupancy gradient indicator.
+   */
   getOccupancyAlpha(room: Room): string {
     if (!room) {
       return '0';
@@ -131,6 +154,9 @@ export class RoomsComponent implements OnInit {
     return alpha.toFixed(2);
   }
 
+  /**
+   * Compares room numbers using locale-aware numeric ordering.
+   */
   private compareRoomNumbers(a: string, b: string): number {
     return (a ?? '').localeCompare(b ?? '', undefined, {
       numeric: true,
@@ -138,6 +164,9 @@ export class RoomsComponent implements OnInit {
     });
   }
 
+  /**
+   * Attempts to extract a floor number from a string.
+   */
   private findFloorNumber(value: string): number | null {
     const match = /\d+/.exec(value);
     if (!match) {
@@ -148,6 +177,9 @@ export class RoomsComponent implements OnInit {
     return Number.isNaN(parsed) ? null : parsed;
   }
 
+  /**
+   * Ensures the selected floor remains valid after data refresh.
+   */
   private ensureValidFloorSelection(): void {
     if (
       this.selectedFloorLabel !== this.ALL_FLOORS_OPTION &&

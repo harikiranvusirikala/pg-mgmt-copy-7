@@ -5,6 +5,9 @@ import { AuthGuard } from '../core/guards/auth.guard';
 import { LoginComponent } from './login/login.component';
 import { ProfileComponent } from './profile/profile.component';
 
+/**
+ * Tenant routes requiring authentication, plus the public login screen.
+ */
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   {
@@ -22,4 +25,5 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
+/** Registers child routes for the tenant feature area. */
 export class UserRoutingModule {}

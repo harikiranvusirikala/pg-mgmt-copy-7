@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
+/**
+ * Shape of a tenant profile as exposed to the Angular UI.
+ */
 export interface Tenant {
   id?: string;
   name: string;
@@ -15,12 +18,17 @@ export interface Tenant {
   continuousStay?: boolean;
 }
 
+/**
+ * Normalized tenant payload used while reading from storage.
+ */
 type TenantLike = Tenant & { active?: boolean };
 
 @Injectable({
   providedIn: 'root',
 })
-/** Maintains the tenant authentication state shared throughout the app. */
+/**
+ * Manages the authenticated tenant session and exposes reactive state for the UI.
+ */
 export class AuthService {
   private readonly currentUserSubject = new BehaviorSubject<Tenant | null>(
     null,
@@ -35,6 +43,9 @@ export class AuthService {
     this.checkAuthState();
   }
 
+  /**
+   * Restores session state from local storage when the application boots.
+   */
   private checkAuthState(): void {
     const token = localStorage.getItem('authToken');
     const userStr = localStorage.getItem('user');
@@ -51,6 +62,9 @@ export class AuthService {
     }
   }
 
+  /**
+   * Persists the supplied tenant as the active user and broadcasts session state.
+   */
   public setCurrentUser(user: TenantLike): Tenant {
     const normalizedTenant = this.normalizeTenant(user);
     if (!normalizedTenant) {
@@ -61,18 +75,30 @@ export class AuthService {
     return normalizedTenant;
   }
 
+  /**
+   * Returns the current tenant synchronously if one is set.
+   */
   public getCurrentUser(): Tenant | null {
     return this.currentUserSubject.value;
   }
 
+  /**
+   * Indicates whether a tenant session is currently active.
+   */
   public isLoggedIn(): boolean {
     return this.isLoggedInSubject.value;
   }
 
+  /**
+   * Retrieves the persisted authentication token.
+   */
   public getToken(): string | null {
     return localStorage.getItem('authToken');
   }
 
+  /**
+   * Clears all tenant session information and broadcasts the logout event.
+   */
   public logout(): void {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
@@ -80,6 +106,9 @@ export class AuthService {
     this.isLoggedInSubject.next(false);
   }
 
+  /**
+   * Ensures tenant data contains the properties expected by the UI layer.
+   */
   public normalizeTenant(user: TenantLike | null): Tenant | null {
     if (!user) {
       return null;

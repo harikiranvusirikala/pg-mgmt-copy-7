@@ -6,6 +6,9 @@ import { map } from 'rxjs/operators';
 import { ApiConfig } from '../config/api.config';
 import { Tenant } from './auth.service';
 
+/**
+ * Fields that can be updated when editing a tenant profile.
+ */
 type TenantProfileUpdatePayload = Partial<
   Pick<Tenant, 'phone' | 'mealPreference' | 'continuousStay' | 'due'>
 > & {
@@ -13,18 +16,26 @@ type TenantProfileUpdatePayload = Partial<
 };
 
 @Injectable({ providedIn: 'root' })
-/** Coordinates tenant CRUD operations with the Spring backend. */
+/**
+ * Handles communication with the backend tenant endpoints and normalizes responses.
+ */
 export class TenantService {
   private readonly apiUrl = ApiConfig.tenants; // Spring Boot backend
 
   constructor(private readonly http: HttpClient) {}
 
+  /**
+   * Loads the full tenant list and ensures consistent typing.
+   */
   getTenants(): Observable<Tenant[]> {
     return this.http
       .get<Tenant[]>(this.apiUrl)
       .pipe(map((tenants) => this.normalizeTenants(tenants)));
   }
 
+  /**
+   * Creates a new tenant record.
+   */
   addTenant(tenant: any): Observable<Tenant> {
     return this.http
       .post<Tenant>(this.apiUrl, tenant)
@@ -33,18 +44,27 @@ export class TenantService {
       );
   }
 
+  /**
+   * Finds a tenant by email address.
+   */
   getTenantByEmail(email: string): Observable<Tenant | null> {
     return this.http
       .get<Tenant>(`${this.apiUrl}/${encodeURIComponent(email)}`)
       .pipe(map((tenant) => this.normalizeTenant(tenant)));
   }
 
+  /**
+   * Toggles the active status for a tenant.
+   */
   updateTenantStatus(id: string, isActive: boolean): Observable<Tenant> {
     return this.http
       .patch<Tenant>(`${this.apiUrl}/${id}/status`, { isActive })
       .pipe(map((tenant) => this.normalizeTenant(tenant) as Tenant));
   }
 
+  /**
+   * Updates profile settings such as phone, meal preference, or renewal date.
+   */
   updateTenantProfile(
     id: string,
     payload: TenantProfileUpdatePayload,
@@ -54,12 +74,18 @@ export class TenantService {
       .pipe(map((tenant) => this.normalizeTenant(tenant) as Tenant));
   }
 
+  /**
+   * Updates the room assignment for a tenant.
+   */
   updateTenantRoom(id: string, roomNo: string | null): Observable<Tenant> {
     return this.http
       .patch<Tenant>(`${this.apiUrl}/${id}/room`, { roomNo })
       .pipe(map((tenant) => this.normalizeTenant(tenant) as Tenant));
   }
 
+  /**
+   * Normalizes server responses into the canonical tenant shape used by the UI.
+   */
   private normalizeTenant(tenant: Tenant | null): Tenant | null {
     if (!tenant) {
       return null;
@@ -81,6 +107,9 @@ export class TenantService {
     };
   }
 
+  /**
+   * Applies normalization to collections, filtering null entries.
+   */
   private normalizeTenants(tenants: Tenant[] | null): Tenant[] {
     if (!tenants) {
       return [];
@@ -91,6 +120,9 @@ export class TenantService {
       .filter((tenant): tenant is Tenant => tenant !== null);
   }
 
+  /**
+   * Converts renewal dates into Date objects when possible.
+   */
   private normalizeRenewalDate(
     renewalDate: string | Date | null | undefined,
   ): Date | undefined {

@@ -32,6 +32,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     private readonly authService: AuthService,
   ) {}
 
+  /**
+   * Subscribes to the Google auth stream and automatically signs a user in when the component loads.
+   *
+   * The handler performs two actions:
+   * - Attempts to restore a previously persisted session before rendering the login button.
+   * - Listens to Google sign-in events and forwards verified users to the backend for JWT issuance.
+   */
   ngOnInit(): void {
     this.attemptAutoLogin();
 
@@ -50,10 +57,18 @@ export class LoginComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Cleans up the Google auth subscription to prevent memory leaks when the component is destroyed.
+   */
   ngOnDestroy(): void {
     this.authStateSub?.unsubscribe();
   }
 
+  /**
+   * Exchanges the Google id token for a backend-issued JWT and stores the tenant session locally.
+   *
+   * @param user - The Google social user returned by the angularx-social-login library.
+   */
   private handleGoogleUser(user: SocialUser): void {
     if (!user.idToken) {
       console.error('🚫 Google sign-in failed: Missing ID token.');
@@ -92,6 +107,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Attempts to restore a previously authenticated session using the stored JWT and user payload.
+   *
+   * If the persisted JWT is invalid or expired the session is cleared, forcing a fresh login.
+   */
   private attemptAutoLogin(): void {
     const token = this.authService.getToken();
     const storedUser = localStorage.getItem('user');
@@ -119,6 +139,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Validates an encoded JWT by ensuring its expiration has not passed.
+   *
+   * @param token - The encoded JWT returned by the backend.
+   * @returns True when the token contains a finite future expiration timestamp; otherwise false.
+   */
   private isJwtValid(token: string): boolean {
     const payload = this.decodeJwtPayload(token);
     const exp = payload?.['exp'];
@@ -135,6 +161,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     return Date.now() < expiry;
   }
 
+  /**
+   * Decodes the payload segment of a JWT and returns it as a JSON object.
+   *
+   * @param token - The encoded JWT string.
+   * @returns The decoded claims object when parsing succeeds, or null when decoding fails.
+   */
   private decodeJwtPayload(token: string): Record<string, any> | null {
     const parts = token.split('.');
     if (parts.length !== 3) {

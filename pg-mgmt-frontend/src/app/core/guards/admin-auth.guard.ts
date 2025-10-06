@@ -13,13 +13,18 @@ import { AdminAuthService } from '../services/admin-auth.service';
 @Injectable({
   providedIn: 'root',
 })
-/** Locks down admin-only routes unless an admin session is active. */
+/**
+ * Guards admin routes by validating the administrator session state.
+ */
 export class AdminAuthGuard implements CanActivate, CanActivateChild {
   constructor(
     private readonly adminAuthService: AdminAuthService,
     private readonly router: Router,
   ) {}
 
+  /**
+   * Prevents navigation to admin routes for unauthenticated users.
+   */
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
@@ -27,6 +32,9 @@ export class AdminAuthGuard implements CanActivate, CanActivateChild {
     return this.ensureAdmin(state.url);
   }
 
+  /**
+   * Applies the same access check to nested admin routes.
+   */
   canActivateChild(
     childRoute: ActivatedRouteSnapshot,
     state: RouterStateSnapshot,
@@ -34,6 +42,9 @@ export class AdminAuthGuard implements CanActivate, CanActivateChild {
     return this.ensureAdmin(state.url);
   }
 
+  /**
+   * Redirects unauthorized admins to the login page and stores the target URL.
+   */
   private ensureAdmin(redirectUrl: string): boolean | UrlTree {
     if (this.adminAuthService.isLoggedIn()) {
       return true;

@@ -5,6 +5,9 @@ import { map } from 'rxjs/operators';
 
 import { ApiConfig } from '../config/api.config';
 
+/**
+ * Room metadata as displayed throughout the admin interface.
+ */
 export interface Room {
   id?: string;
   roomNo: string;
@@ -14,11 +17,17 @@ export interface Room {
   allocatedCount: number;
 }
 
+/**
+ * Payload for updating the mutable fields of an existing room.
+ */
 export interface RoomUpdatePayload {
   capacity?: number;
   comments?: string | null;
 }
 
+/**
+ * Payload for creating a new room entry.
+ */
 export interface CreateRoomPayload {
   roomNo: string;
   capacity: number;
@@ -28,12 +37,17 @@ export interface CreateRoomPayload {
 }
 
 @Injectable({ providedIn: 'root' })
-/** Provides CRUD helpers for room management flows. */
+/**
+ * Provides CRUD operations for rooms while normalizing API responses.
+ */
 export class RoomService {
   private readonly apiUrl = ApiConfig.rooms;
 
   constructor(private readonly http: HttpClient) {}
 
+  /**
+   * Retrieves all rooms and ensures sensible defaults for missing fields.
+   */
   getRooms(): Observable<Room[]> {
     return this.http
       .get<Room[]>(this.apiUrl)
@@ -42,12 +56,18 @@ export class RoomService {
       );
   }
 
+  /**
+   * Updates an existing room and returns the normalized resource.
+   */
   updateRoom(roomId: string, payload: RoomUpdatePayload): Observable<Room> {
     return this.http
       .patch<Room>(`${this.apiUrl}/${roomId}`, payload)
       .pipe(map((room) => this.normalizeRoom(room)));
   }
 
+  /**
+   * Creates multiple rooms in sequence, emitting the normalized collection.
+   */
   createRooms(payloads: CreateRoomPayload[]): Observable<Room[]> {
     if (!payloads.length) {
       return of([]);
@@ -65,10 +85,16 @@ export class RoomService {
     return forkJoin(requests);
   }
 
+  /**
+   * Deletes the given room identifier.
+   */
   deleteRoom(roomId: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${roomId}`);
   }
 
+  /**
+   * Produces a room object with defaulted properties.
+   */
   private normalizeRoom(room: Room | null | undefined): Room {
     return {
       id: room?.id,

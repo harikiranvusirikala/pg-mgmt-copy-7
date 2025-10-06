@@ -30,6 +30,9 @@ import { AdminAuthService } from './core/services/admin-auth.service';
 
 import { environment } from '../environments/environment';
 
+/**
+ * Injects JWT tokens for both tenant and admin flows into outbound API requests.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthTokenInterceptor implements HttpInterceptor {
   constructor(
@@ -37,6 +40,9 @@ export class AuthTokenInterceptor implements HttpInterceptor {
     private readonly adminAuthService: AdminAuthService,
   ) {}
 
+  /**
+   * Appends an Authorization header when an API request lacks one.
+   */
   intercept(
     request: HttpRequest<unknown>,
     next: HttpHandler,
@@ -62,10 +68,16 @@ export class AuthTokenInterceptor implements HttpInterceptor {
     return next.handle(authorizedRequest);
   }
 
+  /**
+   * Resolves the active admin or tenant token, preferring admin sessions.
+   */
   private resolveToken(): string | null {
     return this.adminAuthService.getToken() ?? this.authService.getToken();
   }
 
+  /**
+   * Determines whether the request targets the backend API.
+   */
   private isApiRequest(url: string): boolean {
     if (!url) {
       return false;

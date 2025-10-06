@@ -14,7 +14,9 @@ type NumericInput = string | number | null;
   styleUrl: './setup.component.css',
   standalone: false,
 })
-/** Supports admins in configuring capacity, comments, and lifecycle of rooms. */
+/**
+ * Provides administrative workflows to edit room capacity, add rooms, and remove unused rooms.
+ */
 export class SetupComponent implements OnInit, OnDestroy {
   rooms: Room[] = [];
   selectedRoom: Room | null = null;
@@ -53,10 +55,16 @@ export class SetupComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Supplies a stable tracking key for ngFor iterations.
+   */
   trackByRoomId(_: number, room: Room): string | undefined {
     return room.id;
   }
 
+  /**
+   * Determines whether the update button should be disabled.
+   */
   get isSaveDisabled(): boolean {
     if (!this.selectedRoom || this.capacityValue == null) {
       return true;
@@ -77,6 +85,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     return !this.hasChanges();
   }
 
+  /**
+   * Indicates when the bulk room creation form can be submitted.
+   */
   get canSubmitNewRooms(): boolean {
     if (this.isAddingRooms) {
       return false;
@@ -98,6 +109,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     return !this.addRoomsError;
   }
 
+  /**
+   * Distinct floor options derived from the current room list.
+   */
   get floorOptions(): string[] {
     const floors = new Set<string>();
     for (const room of this.rooms) {
@@ -110,6 +124,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Room choices filtered by the floor selected in the delete workflow.
+   */
   get deleteRoomOptions(): Room[] {
     if (!this.deleteFloor) {
       return [];
@@ -120,6 +137,9 @@ export class SetupComponent implements OnInit, OnDestroy {
       .sort((a, b) => a.roomNo.localeCompare(b.roomNo));
   }
 
+  /**
+   * Indicates whether the delete room action is currently blocked.
+   */
   get isDeleteDisabled(): boolean {
     if (this.isDeletingRoom) {
       return true;
@@ -132,6 +152,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     return false;
   }
 
+  /**
+   * Persists room capacity and comments updates.
+   */
   onSave(): void {
     if (
       !this.selectedRoom ||
@@ -190,6 +213,9 @@ export class SetupComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Parses and validates manual capacity input.
+   */
   onCapacityChange(value: NumericInput): void {
     if (value === null || value === '') {
       this.capacityValue = null;
@@ -208,10 +234,16 @@ export class SetupComponent implements OnInit, OnDestroy {
     this.validateCapacity();
   }
 
+  /**
+   * Synchronizes comments text area changes with internal state.
+   */
   onCommentsChange(value: string | null): void {
     this.commentsValue = value ?? '';
   }
 
+  /**
+   * Validates and submits the bulk room creation workflow.
+   */
   onAddRooms(): void {
     this.addRoomsError = null;
 
@@ -296,12 +328,18 @@ export class SetupComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Clears validation error messaging when form fields change.
+   */
   onAddRoomsFieldChange(): void {
     if (this.addRoomsError) {
       this.addRoomsError = null;
     }
   }
 
+  /**
+   * Normalizes floor number input for the add rooms form.
+   */
   onNewFloorChange(value: NumericInput): void {
     this.onAddRoomsFieldChange();
     if (value === null || value === '') {
@@ -313,6 +351,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     this.newFloorNo = Number.isNaN(parsed) ? null : parsed;
   }
 
+  /**
+   * Normalizes capacity input for the add rooms form.
+   */
   onNewCapacityChange(value: NumericInput): void {
     this.onAddRoomsFieldChange();
     if (value === null || value === '') {
@@ -324,11 +365,17 @@ export class SetupComponent implements OnInit, OnDestroy {
     this.newCapacity = Number.isNaN(parsed) ? null : parsed;
   }
 
+  /**
+   * Normalizes room number list input for the add rooms form.
+   */
   onNewRoomNumbersChange(value: string | null): void {
     this.onAddRoomsFieldChange();
     this.newRoomNumbers = value ?? '';
   }
 
+  /**
+   * Handles floor selection changes for the delete workflow.
+   */
   onDeleteFloorChange(floorNo: string | null): void {
     if (this.deleteRoomsError) {
       this.deleteRoomsError = null;
@@ -338,6 +385,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     this.deleteRoomId = null;
   }
 
+  /**
+   * Stores the selected room for deletion.
+   */
   onDeleteRoomSelected(roomId: string | null): void {
     if (this.deleteRoomsError) {
       this.deleteRoomsError = null;
@@ -346,6 +396,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     this.deleteRoomId = roomId;
   }
 
+  /**
+   * Deletes the chosen room after validating dependencies.
+   */
   onDeleteRoom(): void {
     this.deleteRoomsError = null;
 
@@ -420,6 +473,9 @@ export class SetupComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Loads the latest room data and reconciles view selections.
+   */
   private loadRooms(): void {
     this.isLoadingRooms = true;
     this.roomService
@@ -475,6 +531,9 @@ export class SetupComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Associates the selected room identifier with the view state.
+   */
   onRoomSelected(roomId: string | null): void {
     this.selectedRoomId = roomId;
 
@@ -494,6 +553,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Applies the currently selected room to the edit form.
+   */
   private applySelectedRoom(room: Room | null): void {
     if (room) {
       this.capacityValue = room.capacity;
@@ -506,6 +568,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     this.validateCapacity();
   }
 
+  /**
+   * Determines if the edit form differs from the persisted room values.
+   */
   private hasChanges(): boolean {
     if (!this.selectedRoom) {
       return false;
@@ -521,6 +586,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     );
   }
 
+  /**
+   * Normalizes comments strings by trimming whitespace.
+   */
   private normalizeComment(value: string | null | undefined): string | null {
     if (!value) {
       return null;
@@ -530,6 +598,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     return trimmed.length > 0 ? trimmed : null;
   }
 
+  /**
+   * Validates that the requested capacity is not below current usage.
+   */
   private validateCapacity(): void {
     if (!this.selectedRoom || this.capacityValue == null) {
       this.capacityError = null;
@@ -546,6 +617,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     this.capacityError = null;
   }
 
+  /**
+   * Resets the add rooms form state.
+   */
   resetAddRoomsForm(): void {
     this.newFloorNo = null;
     this.newRoomNumbers = '';
@@ -553,6 +627,9 @@ export class SetupComponent implements OnInit, OnDestroy {
     this.addRoomsError = null;
   }
 
+  /**
+   * Parses comma-delimited room numbers into an array.
+   */
   private parseRoomNumbers(value: string): string[] {
     return value
       .split(',')
@@ -560,6 +637,9 @@ export class SetupComponent implements OnInit, OnDestroy {
       .filter((part) => part.length > 0);
   }
 
+  /**
+   * Resets the delete room workflow to its defaults.
+   */
   resetDeleteForm(): void {
     this.deleteFloor = null;
     this.deleteRoomId = null;

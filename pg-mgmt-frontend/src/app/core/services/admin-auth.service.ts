@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
+/**
+ * Minimal profile information about an authenticated administrator.
+ */
 export interface AdminUser {
   id?: string;
   name: string;
@@ -11,7 +14,9 @@ export interface AdminUser {
 @Injectable({
   providedIn: 'root',
 })
-/** Handles admin authentication state and persistence. */
+/**
+ * Maintains administrator authentication state for the admin portal.
+ */
 export class AdminAuthService {
   private readonly currentAdminSubject = new BehaviorSubject<AdminUser | null>(
     null,
@@ -25,6 +30,9 @@ export class AdminAuthService {
     this.restoreFromStorage();
   }
 
+  /**
+   * Attempts to restore a persisted admin session from local storage.
+   */
   private restoreFromStorage(): void {
     const token = this.getToken();
     const adminStr = localStorage.getItem('adminUser');
@@ -43,6 +51,9 @@ export class AdminAuthService {
     }
   }
 
+  /**
+   * Registers the supplied admin as logged in and emits the new session state.
+   */
   setCurrentAdmin(admin: AdminUser): AdminUser {
     const normalized = this.normalizeAdmin(admin);
     if (!normalized) {
@@ -54,18 +65,30 @@ export class AdminAuthService {
     return normalized;
   }
 
+  /**
+   * Retrieves the currently logged in admin if one exists.
+   */
   getCurrentAdmin(): AdminUser | null {
     return this.currentAdminSubject.value;
   }
 
+  /**
+   * Indicates whether an admin session is active.
+   */
   isLoggedIn(): boolean {
     return this.isLoggedInSubject.value;
   }
 
+  /**
+   * Returns the stored admin JWT token.
+   */
   getToken(): string | null {
     return localStorage.getItem('adminAuthToken');
   }
 
+  /**
+   * Clears admin session data from memory and storage.
+   */
   logout(): void {
     localStorage.removeItem('adminAuthToken');
     localStorage.removeItem('adminUser');
@@ -73,6 +96,9 @@ export class AdminAuthService {
     this.isLoggedInSubject.next(false);
   }
 
+  /**
+   * Produces a sanitized admin profile with fallbacks for missing display name.
+   */
   private normalizeAdmin(admin: AdminUser | null): AdminUser | null {
     if (!admin) {
       return null;

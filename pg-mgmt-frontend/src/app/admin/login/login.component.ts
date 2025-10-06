@@ -24,7 +24,9 @@ import { ApiConfig } from '../../core/config/api.config';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
-/** Handles Google-based sign-in flow for administrators. */
+/**
+ * Handles Google-based authentication for administrators.
+ */
 export class AdminLoginComponent implements OnInit, OnDestroy {
   isLoading = false;
   private authStateSub?: Subscription;
@@ -58,6 +60,9 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
     this.authStateSub?.unsubscribe();
   }
 
+  /**
+   * Exchanges a Google social user for an application JWT and persists the session.
+   */
   private handleGoogleUser(user: SocialUser): void {
     if (!user.idToken) {
       console.error('🚫 Google sign-in failed: Missing ID token.');
@@ -95,6 +100,9 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Attempts to silently restore an existing admin login session.
+   */
   private attemptAutoLogin(): void {
     const token = this.adminAuthService.getToken();
     const storedAdmin = localStorage.getItem('adminUser');
@@ -122,6 +130,9 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Verifies that the stored JWT has not expired.
+   */
   private isJwtValid(token: string): boolean {
     const payload = this.decodeJwtPayload(token);
     const exp = payload?.['exp'];
@@ -138,6 +149,9 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
     return Date.now() < expiry;
   }
 
+  /**
+   * Parses the payload segment of a JWT, returning null on malformed input.
+   */
   private decodeJwtPayload(token: string): Record<string, unknown> | null {
     const parts = token.split('.');
     if (parts.length !== 3) {

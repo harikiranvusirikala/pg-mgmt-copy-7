@@ -22,7 +22,19 @@ services:
     sync: false
   - key: SPRING_DATA_MONGODB_URI
     sync: false
-  - key: APP_CORS_ALLOWED_ORIGIN
+  - key: APP_CORS_ALLOWED_ORIGINS
+    sync: false
+  - key: ACTUATOR_USERNAME
+    sync: false
+  - key: ACTUATOR_PASSWORD
+    sync: false
+  - key: PROMETHEUS_USERNAME
+    sync: false
+  - key: PROMETHEUS_PASSWORD
+    sync: false
+  - key: GRAFANA_USERNAME
+    sync: false
+  - key: GRAFANA_PASSWORD
     sync: false
   region: oregon
   dockerContext: .

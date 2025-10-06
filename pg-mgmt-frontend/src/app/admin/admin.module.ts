@@ -12,6 +12,9 @@ import { ReportComponent } from './report/report.component';
 import { NgChartsModule } from 'ng2-charts';
 import { AdminLoginComponent } from './login/login.component';
 
+/**
+ * Declares admin-facing screens and wires shared dependencies.
+ */
 @NgModule({
   declarations: [
     HomeComponent,

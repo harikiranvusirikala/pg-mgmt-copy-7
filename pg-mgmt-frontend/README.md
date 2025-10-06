@@ -1,72 +1,90 @@
-# PG ManagementFrontend
+# PG Manager Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.3.
+Enterprise management UI for the PG Manager platform. The application is built with Angular 20, Angular Material, and Chart.js, and consumes the Spring Boot backend exposed in the sibling `pg-mgmt-backend` project.
 
-## Development server
+## ✨ Highlights
 
-To start a local development server, run:
+- Admin dashboards for occupancy, meal statistics, room setup, and tenant management.
+- Tenant-facing profile portal with real-time validation and JWT-protected APIs.
+- Shared theming service with light/dark support and Google OAuth-based authentication.
 
-```bash
-ng serve
-```
+## 🔧 Prerequisites
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Node.js** ≥ 18.19 (LTS recommended)
+- **npm** ≥ 9
+- Access to the PG Manager backend API (default `http://localhost:8080`)
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Confirm versions locally:
 
 ```bash
-ng generate --help
+node --version
+npm --version
 ```
 
-## Building
-
-To build the project run:
+## 🚀 Quick start
 
 ```bash
-ng build
+cd pg-mgmt-frontend
+npm install
+
+# configure API base URL if needed (see below)
+
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Once the dev server boots, visit <http://localhost:4200/>. Hot reload is enabled for TypeScript, HTML, and style changes.
 
-## Running unit tests
+## 🧰 Environment configuration
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+The frontend reads API endpoints from `src/environments/environment.ts` (and `.prod.ts`). Update the `apiBaseUrl` value to point at the backend instance:
 
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-
-## API configuration
-
-Set the API base URL in `src/environments/environment.ts` (and the production counterpart) so the built-in HTTP interceptor can attach JWT tokens to backend requests:
-
-```typescript
+```ts
 export const environment = {
   production: false,
   apiBaseUrl: "http://localhost:8080",
 };
 ```
 
-For production builds, update `apiBaseUrl` to the deployed backend URL.
+For production deployments, also configure OAuth identifiers through `environment.prod.ts` and ensure the backend CORS whitelist trusts the deployed host.
+
+## 📜 Available scripts
+
+| Command          | Description                                                           |
+| ---------------- | --------------------------------------------------------------------- |
+| `npm run start`  | Runs `ng serve` with the default development configuration.           |
+| `npm run build`  | Produces an optimized production build under `dist/pg-mgmt-frontend`. |
+| `npm run watch`  | Rebuilds on file changes using the development configuration.         |
+| `npm run test`   | Executes Karma unit tests.                                            |
+| `npm run format` | Formats the workspace with Prettier.                                  |
+
+Additional schematics (`ng generate`, `ng add`, etc.) remain available through the Angular CLI. Run `npx ng help` for the full catalog.
+
+## 🗂️ Project anatomy
+
+```
+src/
+  app/
+    admin/        # Admin dashboard features, Google-auth protected
+    user/         # Tenant login & profile portal
+    core/         # Guards, services, interceptors, config
+    shared/       # Shared modules, Material wrappers, utilities
+  assets/         # Static assets, icons, and styling
+```
+
+## ✅ Quality checks
+
+- **Unit tests**: `npm run test`
+- **Formatting**: `npm run format`
+- **Production build smoke test**: `npm run build`
+
+CI/CD pipelines should execute the production build and unit tests. Include `--configuration production` when validating deployment bundles.
+
+## 📚 Documentation
+
+- Detailed documentation improvements are tracked in [`DOCUMENTATION_IMPROVEMENTS.md`](./DOCUMENTATION_IMPROVEMENTS.md).
+- Service-level contracts live alongside their TypeScript sources with JSDoc annotations.
+
+## 🔗 Helpful references
+
+- [Angular Material](https://material.angular.io/components/categories)
+- [Angular CLI command reference](https://angular.dev/tools/cli)
+- [Chart.js documentation](https://www.chartjs.org/docs/latest/)

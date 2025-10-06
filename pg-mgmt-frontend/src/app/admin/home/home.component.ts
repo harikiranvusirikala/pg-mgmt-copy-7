@@ -14,7 +14,9 @@ import {
   styleUrls: ['./home.component.css'],
   standalone: false,
 })
-/** Shows the admin dashboard with key stats and recent tenant activity. */
+/**
+ * Displays the admin dashboard overview with headline stats and tenant lists.
+ */
 export class HomeComponent implements OnInit {
   loading = false;
   error?: string;
@@ -37,10 +39,16 @@ export class HomeComponent implements OnInit {
     this.refreshData();
   }
 
+  /**
+   * Provides a stable identifier for ngFor when rendering tenant cards.
+   */
   trackTenant(_index: number, tenant: TenantSummary): string {
     return tenant.id ?? `${tenant.name}-${tenant.roomNo ?? 'unassigned'}`;
   }
 
+  /**
+   * Fetches the latest dashboard summary from the backend.
+   */
   private refreshData(): void {
     this.loading = true;
     this.error = undefined;
@@ -51,6 +59,9 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  /**
+   * Updates UI state following a successful dashboard response.
+   */
   private handleSuccess(summary: DashboardSummaryViewModel): void {
     this.loading = false;
     this.counts = summary.counts;
@@ -58,6 +69,9 @@ export class HomeComponent implements OnInit {
     this.paymentDueTenants = summary.paymentDueTenants ?? [];
   }
 
+  /**
+   * Resets state and surfaces an error message when the dashboard request fails.
+   */
   private handleError(error: unknown): void {
     console.error('🚨 Failed to load dashboard summary', error);
     this.loading = false;

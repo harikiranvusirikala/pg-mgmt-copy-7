@@ -3,6 +3,9 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { LandingComponent } from './landing/landing.component';
 
+/**
+ * Root application routes lazily loading tenant and admin areas.
+ */
 const routes: Routes = [
   { path: '', component: LandingComponent },
   {
@@ -22,5 +25,5 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
-/** Declares top-level routes for admin and tenant areas. */
+/** Declares the top-level router configuration for the Angular app. */
 export class AppRoutingModule {}
