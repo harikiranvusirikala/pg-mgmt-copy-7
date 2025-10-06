@@ -41,6 +41,16 @@ export class AdminLoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.attemptAutoLogin();
 
+    // Explicitly initialize Google provider when component loads
+    this.socialAuthService
+      .initState
+      .subscribe(() => {
+        // Google SDK is now ready
+      })
+      .add(() => {
+        // Clean up
+      });
+
     this.authStateSub = this.socialAuthService.authState.subscribe(
       (user: SocialUser | null) => {
         if (!user || user.provider !== GoogleLoginProvider.PROVIDER_ID) {
