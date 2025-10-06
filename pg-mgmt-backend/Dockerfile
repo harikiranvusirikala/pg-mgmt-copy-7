@@ -39,9 +39,9 @@ USER appuser
 # Expose the port (Render.com will set PORT env variable)
 EXPOSE 8080
 
-# Health check
-# HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    # CMD curl -f http://localhost:${PORT:-8080}/actuator/health || exit 1
+# Health check using actuator endpoint
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8080}/actuator/health/liveness || exit 1
 
 # Run the application
 # Render.com provides PORT env variable, so we bind to it
