@@ -1,17 +1,17 @@
 version: "1"
 services:
 - type: web
-  name: saibabapg
+  name: pgmanager-test
   runtime: static
-  repo: https://github.com/harikiranvusirikala/pg-mgmt
+  repo: https://github.com/harikiranvusirikala/pg-mgmt-copy-7
   buildCommand: npm install; npm run build
   staticPublishPath: dist/pg-mgmt-frontend/browser
   autoDeployTrigger: commit
   rootDir: pg-mgmt-frontend
 - type: web
-  name: saibabapg-backend
+  name: pgmanager-backend-test
   runtime: docker
-  repo: https://github.com/harikiranvusirikala/pg-mgmt
+  repo: https://github.com/harikiranvusirikala/pg-mgmt-copy-7
   plan: free
   envVars:
   - key: JWT_SECRET
