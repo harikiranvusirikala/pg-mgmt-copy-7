@@ -32,6 +32,8 @@ services:
     sync: false
   - key: PROMETHEUS_PASSWORD
     sync: false
+  - key: PROMETHEUS_TARGET
+    sync: false
   - key: GRAFANA_USERNAME
     sync: false
   - key: GRAFANA_PASSWORD
